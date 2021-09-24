@@ -10,7 +10,9 @@ import java.util.List;
 public class LabWorkDao {
 
     public LabWork findById(int id) {
-        return HibernateSessionFactoryUtil.getSessionFactory().openSession().get(LabWork.class, id);
+        try (Session session = HibernateSessionFactoryUtil.getSessionFactory().openSession()) {
+            return session.get(LabWork.class, id);
+        }
     }
 
     public void save(LabWork labWork) {
@@ -38,7 +40,9 @@ public class LabWorkDao {
     }
 
     public List<LabWork> findAll() {
-        return HibernateSessionFactoryUtil.getSessionFactory().openSession().createQuery("FROM LabWork", LabWork.class).list();
+        try (Session session = HibernateSessionFactoryUtil.getSessionFactory().openSession()) {
+            return session.createQuery("FROM LabWork", LabWork.class).list();
+        }
     }
 
 

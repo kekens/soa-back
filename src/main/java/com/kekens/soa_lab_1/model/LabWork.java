@@ -26,12 +26,13 @@ public class LabWork {
     })
     private Coordinates coordinates; //Поле не может быть null
 
-    private java.time.ZonedDateTime creationDate; //Поле не может быть null, Значение этого поля должно генерироваться автоматически
+    private java.time.ZonedDateTime creationDate = java.time.ZonedDateTime.now(); //Поле не может быть null, Значение этого поля должно генерироваться автоматически
     private Integer minimalPoint; //Поле может быть null, Значение поля должно быть больше 0
 
     @Enumerated(EnumType.STRING)
     private Difficulty difficulty; //Поле может быть null
 
     @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "discipline_id", referencedColumnName = "id")
     private Discipline discipline; //Поле не может быть null
 }
