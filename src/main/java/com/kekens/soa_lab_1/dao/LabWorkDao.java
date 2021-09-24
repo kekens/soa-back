@@ -26,7 +26,9 @@ public class LabWorkDao {
     public void update(LabWork labWork) {
         Session session = HibernateSessionFactoryUtil.getSessionFactory().openSession();
         Transaction tx1 = session.beginTransaction();
-        session.update(labWork);
+        LabWork labWorkDb = session.get(LabWork.class, labWork.getId());
+        labWorkDb.update(labWork);
+        session.update(labWorkDb);
         tx1.commit();
         session.close();
     }
@@ -34,7 +36,7 @@ public class LabWorkDao {
     public void delete(LabWork labWork) {
         Session session = HibernateSessionFactoryUtil.getSessionFactory().openSession();
         Transaction tx1 = session.beginTransaction();
-        session.update(labWork);
+        session.delete(labWork);
         tx1.commit();
         session.close();
     }

@@ -3,10 +3,12 @@ package com.kekens.soa_lab_1.model;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.DynamicUpdate;
 
 import javax.persistence.*;
 
 @Entity
+@DynamicUpdate
 @Table(name = "labwork")
 @Data
 @NoArgsConstructor
@@ -26,7 +28,9 @@ public class LabWork {
     })
     private Coordinates coordinates; //Поле не может быть null
 
+    @Column(updatable = false)
     private java.time.ZonedDateTime creationDate = java.time.ZonedDateTime.now(); //Поле не может быть null, Значение этого поля должно генерироваться автоматически
+
     private Integer minimalPoint; //Поле может быть null, Значение поля должно быть больше 0
 
     @Enumerated(EnumType.STRING)
@@ -35,4 +39,26 @@ public class LabWork {
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "discipline_id", referencedColumnName = "id")
     private Discipline discipline; //Поле не может быть null
+
+    public void update(LabWork labWork) {
+        if (labWork.getName() != null) {
+            this.name = labWork.getName();
+        }
+
+        if (labWork.getCoordinates() != null) {
+            this.coordinates = labWork.getCoordinates();
+        }
+
+        if (labWork.getMinimalPoint() != null) {
+            this.minimalPoint = labWork.getMinimalPoint();
+        }
+
+        if (labWork.getDifficulty() != null) {
+            this.difficulty = labWork.getDifficulty();
+        }
+
+        if (labWork.getDiscipline() != null) {
+            this.discipline = labWork.getDiscipline();
+        }
+    }
 }

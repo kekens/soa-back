@@ -38,7 +38,12 @@ public class LabWorkServlet extends HttpServlet {
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        log.info("POST");
 
+        LabWork labWork = jsonUtil.buildObjectFromRequest(request);
+        log.info(labWork.toString());
+
+        labWorkService.updateLabWork(labWork);
     }
 
     @Override

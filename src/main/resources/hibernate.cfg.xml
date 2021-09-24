@@ -12,6 +12,6 @@
         <property name="hibernate.connection.password">12345678</property>
         <!-- Echo all executed SQL to stdout -->
         <property name="show_sql">true</property>
-        <property name="hibernate.hbm2ddl.auto">create</property>
+        <property name="hibernate.hbm2ddl.auto">update</property>
     </session-factory>
 </hibernate-configuration>

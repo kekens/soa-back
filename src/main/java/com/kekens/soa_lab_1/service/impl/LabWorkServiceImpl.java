@@ -17,4 +17,9 @@ public class LabWorkServiceImpl implements LabWorkService {
     public void createLabWork(LabWork labWork) {
         labWorkDao.save(labWork);
     }
+
+    @Override
+    public void updateLabWork(LabWork labWork) {
+        labWorkDao.update(labWork);
+    }
 }
