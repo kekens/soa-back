@@ -6,6 +6,7 @@ import com.kekens.soa_lab_1.service.LabWorkService;
 import com.kekens.soa_lab_1.validator.LabWorkValidator;
 import com.kekens.soa_lab_1.validator.exception.IncorrectDataException;
 
+import java.util.Collections;
 import java.util.List;
 
 public class LabWorkServiceImpl implements LabWorkService {
@@ -33,6 +34,10 @@ public class LabWorkServiceImpl implements LabWorkService {
     public void updateLabWork(LabWork labWork) throws IncorrectDataException {
         List<String> errorList = labWorkValidator.validateLabWork(labWork);
 
+        if (findLabWorkById(labWork.getId()) == null) {
+            errorList.add("Not found LabWork with that ID");
+        }
+
         if (errorList.size() > 0) {
             throw new IncorrectDataException(errorList);
         } else {
@@ -41,7 +46,18 @@ public class LabWorkServiceImpl implements LabWorkService {
     }
 
     @Override
-    public void deleteLabWork(int id) {
-        labWorkDao.delete(id);
+    public void deleteLabWork(int id) throws IncorrectDataException {
+        LabWork labWork = findLabWorkById(id);
+
+        if (labWork == null) {
+            throw new IncorrectDataException(Collections.singletonList("Not found LabWork with that ID"));
+        } else {
+            labWorkDao.delete(labWork);
+        }
+    }
+
+    @Override
+    public List<LabWork> findAllLabWorks() {
+        return labWorkDao.findAll();
     }
 }

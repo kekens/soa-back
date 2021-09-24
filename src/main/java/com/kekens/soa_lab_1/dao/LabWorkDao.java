@@ -31,10 +31,9 @@ public class LabWorkDao {
         session.close();
     }
 
-    public void delete(int id) {
+    public void delete(LabWork labWork) {
         Session session = HibernateSessionFactoryUtil.getSessionFactory().openSession();
         Transaction tx1 = session.beginTransaction();
-        LabWork labWork = session.get(LabWork.class, id);
         session.delete(labWork);
         tx1.commit();
         session.close();

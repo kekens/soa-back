@@ -11,7 +11,7 @@ public class DisciplineValidator {
         List<String> errorList = new ArrayList<>();
 
         if ((discipline.getName() == null) || (discipline.getName().isEmpty())) {
-            errorList.add("Y coordinate mustn't be empty");
+            errorList.add("Discipline name mustn't be empty");
         }
 
         return errorList;

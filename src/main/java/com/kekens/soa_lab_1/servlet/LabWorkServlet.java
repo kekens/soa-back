@@ -26,11 +26,18 @@ public class LabWorkServlet extends HttpServlet {
     static Logger log = Logger.getLogger(LabWorkServlet.class.getName());
 
     @Override
-    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
         log.info("GET");
 
-        LabWork labWork = labWorkService.findLabWorkById(Integer.parseInt(request.getParameter("id")));
-        String labWorkJsonString = jsonUtilLabWork.buildJsonStringFromObject(labWork);
+        String labWorkJsonString;
+
+        if (request.getParameter("id") == null) {
+            List<LabWork> listLabWork = labWorkService.findAllLabWorks();
+            labWorkJsonString = jsonUtilLabWork.buildJsonStringFromList(listLabWork);
+        } else {
+            LabWork labWork = labWorkService.findLabWorkById(Integer.parseInt(request.getParameter("id")));
+            labWorkJsonString = jsonUtilLabWork.buildJsonStringFromObject(labWork);
+        }
 
         PrintWriter out = response.getWriter();
         response.setContentType("application/json");
@@ -40,7 +47,7 @@ public class LabWorkServlet extends HttpServlet {
     }
 
     @Override
-    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
         log.info("POST");
 
         LabWork labWork = jsonUtilLabWork.buildObjectFromRequest(request);
@@ -54,7 +61,7 @@ public class LabWorkServlet extends HttpServlet {
     }
 
     @Override
-    protected void doPut(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    protected void doPut(HttpServletRequest request, HttpServletResponse response) throws IOException {
         log.info("PUT");
 
         LabWork labWork = jsonUtilLabWork.buildObjectFromRequest(request);
@@ -68,10 +75,14 @@ public class LabWorkServlet extends HttpServlet {
     }
 
     @Override
-    protected void doDelete(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    protected void doDelete(HttpServletRequest request, HttpServletResponse response) throws IOException {
         log.info("DELETE");
 
-        labWorkService.deleteLabWork(Integer.parseInt(request.getParameter("id")));
+        try {
+            labWorkService.deleteLabWork(Integer.parseInt(request.getParameter("id")));
+        } catch (IncorrectDataException e) {
+            sendErrorListResponse(response, e.getErrorList());
+        }
     }
 
     private void sendErrorListResponse(HttpServletResponse response, List<String> errorList) throws IOException {
