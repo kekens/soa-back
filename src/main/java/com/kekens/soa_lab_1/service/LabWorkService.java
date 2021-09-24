@@ -1,5 +1,6 @@
 package com.kekens.soa_lab_1.service;
 
+import com.kekens.soa_lab_1.model.Difficulty;
 import com.kekens.soa_lab_1.model.LabWork;
 import com.kekens.soa_lab_1.validator.exception.IncorrectDataException;
 
@@ -13,4 +14,7 @@ public interface LabWorkService {
     void deleteLabWork(int id) throws IncorrectDataException;
     List<LabWork> findAllLabWorks();
 
+    void deleteLabWorkByDifficulty(String diff) throws IncorrectDataException;
+    int getCountLabWorkByDifficulty(String diff) throws IncorrectDataException;
+    List<LabWork> findAllLabWorkByName(String name);
 }

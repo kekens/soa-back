@@ -1,11 +1,13 @@
 package com.kekens.soa_lab_1.service.impl;
 
 import com.kekens.soa_lab_1.dao.LabWorkDao;
+import com.kekens.soa_lab_1.model.Difficulty;
 import com.kekens.soa_lab_1.model.LabWork;
 import com.kekens.soa_lab_1.service.LabWorkService;
 import com.kekens.soa_lab_1.validator.LabWorkValidator;
 import com.kekens.soa_lab_1.validator.exception.IncorrectDataException;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -60,4 +62,61 @@ public class LabWorkServiceImpl implements LabWorkService {
     public List<LabWork> findAllLabWorks() {
         return labWorkDao.findAll();
     }
+
+    @Override
+    public void deleteLabWorkByDifficulty(String diff) throws IncorrectDataException {
+        Difficulty difficulty;
+
+        try {
+            difficulty = Difficulty.valueOf(diff);
+        } catch (IllegalArgumentException e) {
+            throw new IncorrectDataException(Collections.singletonList("Incorrect value of difficulty"));
+        }
+
+        List<LabWork> listLabWork = findAllLabWorks();
+
+        for (LabWork labWork : listLabWork) {
+            if (labWork.getDifficulty() == difficulty) {
+                deleteLabWork(labWork.getId());
+                break;
+            }
+        }
+    }
+
+    @Override
+    public int getCountLabWorkByDifficulty(String diff) throws IncorrectDataException {
+        int count = 0;
+        Difficulty difficulty;
+
+        try {
+            difficulty = Difficulty.valueOf(diff);
+        } catch (IllegalArgumentException e) {
+            throw new IncorrectDataException(Collections.singletonList("Incorrect value of difficulty"));
+        }
+
+        List<LabWork> listLabWork = findAllLabWorks();
+
+        for (LabWork labWork : listLabWork) {
+            if (labWork.getDifficulty().value > difficulty.value) {
+                count++;
+            }
+        }
+
+        return count;
+    }
+
+    @Override
+    public List<LabWork> findAllLabWorkByName(String name) {
+        List<LabWork> resultList = new ArrayList<>();
+        List<LabWork> allLabWorks = findAllLabWorks();
+
+        for (LabWork labWork : allLabWorks) {
+            if (labWork.getName().contains(name)) {
+                resultList.add(labWork);
+            }
+        }
+
+        return resultList;
+    }
+
 }
