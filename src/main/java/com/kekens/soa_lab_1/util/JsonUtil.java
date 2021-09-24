@@ -6,6 +6,7 @@ import com.kekens.soa_lab_1.model.LabWork;
 import javax.servlet.http.HttpServletRequest;
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.util.List;
 
 public class JsonUtil<T> {
 
@@ -31,5 +32,9 @@ public class JsonUtil<T> {
 
     public String buildJsonStringFromObject(T object) {
         return gson.toJson(object);
+    }
+
+    public String buildJsonStringFromList(List<T> list) {
+        return gson.toJson(list);
     }
 }
