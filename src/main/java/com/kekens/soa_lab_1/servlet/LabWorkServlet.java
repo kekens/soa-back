@@ -1,9 +1,9 @@
 package com.kekens.soa_lab_1.servlet;
 
-import com.kekens.soa_lab_1.model.Difficulty;
 import com.kekens.soa_lab_1.model.LabWork;
 import com.kekens.soa_lab_1.service.LabWorkService;
 import com.kekens.soa_lab_1.service.impl.LabWorkServiceImpl;
+import com.kekens.soa_lab_1.util.FilterConfiguration;
 import com.kekens.soa_lab_1.util.JsonUtil;
 import com.kekens.soa_lab_1.validator.exception.IncorrectDataException;
 
@@ -36,7 +36,18 @@ public class LabWorkServlet extends HttpServlet {
             String labWorkJsonString;
 
             if (request.getParameter("id") == null) {
-                List<LabWork> listLabWork = labWorkService.findAllLabWorks();
+                // Filter
+                FilterConfiguration filterConfiguration = new FilterConfiguration();
+
+                if (request.getParameter("sort") != null) {
+                    filterConfiguration.sortingParams = request.getParameterValues("sort");
+                }
+
+                if (request.getParameter("filter") != null) {
+                    filterConfiguration.filteringParams = request.getParameterValues("filter");
+                }
+
+                List<LabWork> listLabWork = labWorkService.findAllLabWorks(filterConfiguration);
                 labWorkJsonString = jsonUtilLabWork.buildJsonStringFromList(listLabWork);
             } else {
                 LabWork labWork = labWorkService.findLabWorkById(Integer.parseInt(request.getParameter("id")));

@@ -4,6 +4,7 @@ import com.kekens.soa_lab_1.dao.LabWorkDao;
 import com.kekens.soa_lab_1.model.Difficulty;
 import com.kekens.soa_lab_1.model.LabWork;
 import com.kekens.soa_lab_1.service.LabWorkService;
+import com.kekens.soa_lab_1.util.FilterConfiguration;
 import com.kekens.soa_lab_1.validator.LabWorkValidator;
 import com.kekens.soa_lab_1.validator.exception.IncorrectDataException;
 
@@ -59,8 +60,8 @@ public class LabWorkServiceImpl implements LabWorkService {
     }
 
     @Override
-    public List<LabWork> findAllLabWorks() {
-        return labWorkDao.findAll();
+    public List<LabWork> findAllLabWorks(FilterConfiguration filterConfiguration) {
+        return labWorkDao.findAllFiltering(filterConfiguration);
     }
 
     @Override
@@ -73,7 +74,7 @@ public class LabWorkServiceImpl implements LabWorkService {
             throw new IncorrectDataException(Collections.singletonList("Incorrect value of difficulty"));
         }
 
-        List<LabWork> listLabWork = findAllLabWorks();
+        List<LabWork> listLabWork = labWorkDao.findAll();
 
         for (LabWork labWork : listLabWork) {
             if (labWork.getDifficulty() == difficulty) {
@@ -94,7 +95,7 @@ public class LabWorkServiceImpl implements LabWorkService {
             throw new IncorrectDataException(Collections.singletonList("Incorrect value of difficulty"));
         }
 
-        List<LabWork> listLabWork = findAllLabWorks();
+        List<LabWork> listLabWork = labWorkDao.findAll();
 
         for (LabWork labWork : listLabWork) {
             if (labWork.getDifficulty().value > difficulty.value) {
@@ -108,7 +109,7 @@ public class LabWorkServiceImpl implements LabWorkService {
     @Override
     public List<LabWork> findAllLabWorkByName(String name) {
         List<LabWork> resultList = new ArrayList<>();
-        List<LabWork> allLabWorks = findAllLabWorks();
+        List<LabWork> allLabWorks = labWorkDao.findAll();
 
         for (LabWork labWork : allLabWorks) {
             if (labWork.getName().contains(name)) {
