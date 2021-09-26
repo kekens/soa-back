@@ -1,8 +1,7 @@
 package com.kekens.soa_lab_1.service;
 
-import com.kekens.soa_lab_1.model.Difficulty;
 import com.kekens.soa_lab_1.model.LabWork;
-import com.kekens.soa_lab_1.util.FilterConfiguration;
+import com.kekens.soa_lab_1.util.LabWorkFilterConfiguration;
 import com.kekens.soa_lab_1.validator.exception.IncorrectDataException;
 
 import java.util.List;
@@ -13,7 +12,7 @@ public interface LabWorkService {
     void createLabWork(LabWork labWork) throws IncorrectDataException;
     void updateLabWork(LabWork labWork) throws IncorrectDataException;
     void deleteLabWork(int id) throws IncorrectDataException;
-    List<LabWork> findAllLabWorks(FilterConfiguration filterConfiguration);
+    List<LabWork> findAllLabWorks(LabWorkFilterConfiguration labWorkFilterConfiguration);
 
     void deleteLabWorkByDifficulty(String diff) throws IncorrectDataException;
     int getCountLabWorkByDifficulty(String diff) throws IncorrectDataException;

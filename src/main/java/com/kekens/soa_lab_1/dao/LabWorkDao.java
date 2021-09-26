@@ -3,11 +3,12 @@ package com.kekens.soa_lab_1.dao;
 import com.kekens.soa_lab_1.model.Coordinates;
 import com.kekens.soa_lab_1.model.Discipline;
 import com.kekens.soa_lab_1.model.LabWork;
-import com.kekens.soa_lab_1.util.FilterConfiguration;
+import com.kekens.soa_lab_1.util.LabWorkFilterConfiguration;
 import com.kekens.soa_lab_1.util.HibernateSessionFactoryUtil;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 
+import javax.persistence.TypedQuery;
 import javax.persistence.criteria.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -50,7 +51,7 @@ public class LabWorkDao {
         }
     }
 
-    public List<LabWork> findAllFiltering(FilterConfiguration filterConfiguration) {
+    public List<LabWork> findAllFiltering(LabWorkFilterConfiguration labWorkFilterConfiguration) {
         try (Session session = HibernateSessionFactoryUtil.getSessionFactory().openSession()) {
             CriteriaBuilder criteriaBuilder = session.getCriteriaBuilder();
             CriteriaQuery<LabWork> criteriaQuery = criteriaBuilder.createQuery(LabWork.class);
@@ -58,10 +59,11 @@ public class LabWorkDao {
             Join<LabWork, Coordinates> joinCoordinates = from.join("coordinates");
             Join<LabWork, Discipline> joinDiscipline = from.join("discipline");
 
-            if (filterConfiguration.sortingParams != null) {
+            // TODO METHOD SET ORDER
+            if (labWorkFilterConfiguration.sortingParams != null) {
                 List<Order> orderList = new ArrayList<>();
 
-                for (String sortParam : filterConfiguration.sortingParams) {
+                for (String sortParam : labWorkFilterConfiguration.sortingParams) {
                     String[] args = sortParam.split("-");
 
                     if ((args[0].startsWith("coordinates_")) || (args[0].startsWith("discipline_"))) {
@@ -86,9 +88,14 @@ public class LabWorkDao {
                 criteriaQuery.orderBy(orderList);
             }
 
+            Predicate predicate = labWorkFilterConfiguration.getPredicate(from, joinCoordinates, joinDiscipline, criteriaBuilder);
+            criteriaQuery.where(predicate);
 
+            TypedQuery<LabWork> typedQuery = session.createQuery(criteriaQuery);
+            typedQuery.setFirstResult((labWorkFilterConfiguration.pageIndex - 1) * labWorkFilterConfiguration.pageSize);
+            typedQuery.setMaxResults(labWorkFilterConfiguration.pageSize);
 
-            return session.createQuery(criteriaQuery).list();
+            return typedQuery.getResultList();
         }
     }
 

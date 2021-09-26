@@ -3,7 +3,7 @@ package com.kekens.soa_lab_1.servlet;
 import com.kekens.soa_lab_1.model.LabWork;
 import com.kekens.soa_lab_1.service.LabWorkService;
 import com.kekens.soa_lab_1.service.impl.LabWorkServiceImpl;
-import com.kekens.soa_lab_1.util.FilterConfiguration;
+import com.kekens.soa_lab_1.util.LabWorkFilterConfiguration;
 import com.kekens.soa_lab_1.util.JsonUtil;
 import com.kekens.soa_lab_1.validator.exception.IncorrectDataException;
 
@@ -37,37 +37,29 @@ public class LabWorkServlet extends HttpServlet {
 
             if (request.getParameter("id") == null) {
                 // Filter
-                FilterConfiguration filterConfiguration = new FilterConfiguration();
+                LabWorkFilterConfiguration labWorkFilterConfiguration = parseFilterRequest(request);
 
-                if (request.getParameter("sort") != null) {
-                    filterConfiguration.sortingParams = request.getParameterValues("sort");
-                }
-
-                if (request.getParameter("filter") != null) {
-                    filterConfiguration.filteringParams = request.getParameterValues("filter");
-                }
-
-                List<LabWork> listLabWork = labWorkService.findAllLabWorks(filterConfiguration);
+                List<LabWork> listLabWork = labWorkService.findAllLabWorks(labWorkFilterConfiguration);
                 labWorkJsonString = jsonUtilLabWork.buildJsonStringFromList(listLabWork);
             } else {
                 LabWork labWork = labWorkService.findLabWorkById(Integer.parseInt(request.getParameter("id")));
                 labWorkJsonString = jsonUtilLabWork.buildJsonStringFromObject(labWork);
             }
 
-            printResponse(response, labWorkJsonString);
+            sendResponse(response, labWorkJsonString);
         } else if (path.equals("/difficulty/count")) {
             // Get count of LabWork which has difficulty more than
             try {
                 String diff = request.getParameter("difficulty");
                 int count = labWorkService.getCountLabWorkByDifficulty(diff);
-                printResponse(response, String.format("Count of LabWork which has difficulty more than %s: %d", diff, count));
+                sendResponse(response, String.format("Count of LabWork which has difficulty more than %s: %d", diff, count));
             } catch (IncorrectDataException e) {
                 sendErrorListResponse(response, e.getErrorList());
             }
         } else if (path.equals("/name/substr")) {
             // Get all LabWorks which contains name
             List<LabWork> listLabWork = labWorkService.findAllLabWorkByName(request.getParameter("name_substr"));
-            printResponse(response, jsonUtilLabWork.buildJsonStringFromList(listLabWork));
+            sendResponse(response, jsonUtilLabWork.buildJsonStringFromList(listLabWork));
         }
 
     }
@@ -130,14 +122,31 @@ public class LabWorkServlet extends HttpServlet {
 
     private void sendErrorListResponse(HttpServletResponse response, List<String> errorList) throws IOException {
         response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-        printResponse(response, jsonUtilString.buildJsonStringFromList(errorList));
+        sendResponse(response, jsonUtilString.buildJsonStringFromList(errorList));
     }
 
-    private void printResponse(HttpServletResponse response, String responseString) throws IOException {
+    private void sendResponse(HttpServletResponse response, String responseString) throws IOException {
         PrintWriter out = response.getWriter();
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");
+        response.setStatus(HttpServletResponse.SC_OK);
         out.print(responseString);
         out.flush();
+    }
+
+    private LabWorkFilterConfiguration parseFilterRequest(HttpServletRequest request) {
+        return new LabWorkFilterConfiguration(
+                request.getParameter("name"),
+                request.getParameter("coordinates_x"),
+                request.getParameter("coordinates_y"),
+                request.getParameter("creationDate"),
+                request.getParameter("minimalPoint"),
+                request.getParameter("difficulty"),
+                request.getParameter("disciplineName"),
+                request.getParameter("disciplineLectureHours"),
+                request.getParameterValues("sort"),
+                request.getParameter("count"),
+                request.getParameter("page")
+                );
     }
 }

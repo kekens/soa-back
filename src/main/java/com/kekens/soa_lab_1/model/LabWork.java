@@ -3,9 +3,9 @@ package com.kekens.soa_lab_1.model;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.DynamicUpdate;
 
 import javax.persistence.*;
+import java.time.temporal.ChronoUnit;
 
 @Entity
 @Table(name = "labwork")
@@ -28,7 +28,7 @@ public class LabWork {
     private Coordinates coordinates; //Поле не может быть null
 
     @Column(updatable = false)
-    private java.time.ZonedDateTime creationDate = java.time.ZonedDateTime.now(); //Поле не может быть null, Значение этого поля должно генерироваться автоматически
+    private java.time.ZonedDateTime creationDate = java.time.ZonedDateTime.now().truncatedTo(ChronoUnit.MINUTES); //Поле не может быть null, Значение этого поля должно генерироваться автоматически
 
     private Integer minimalPoint; //Поле может быть null, Значение поля должно быть больше 0
 

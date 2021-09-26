@@ -4,7 +4,7 @@ import com.kekens.soa_lab_1.dao.LabWorkDao;
 import com.kekens.soa_lab_1.model.Difficulty;
 import com.kekens.soa_lab_1.model.LabWork;
 import com.kekens.soa_lab_1.service.LabWorkService;
-import com.kekens.soa_lab_1.util.FilterConfiguration;
+import com.kekens.soa_lab_1.util.LabWorkFilterConfiguration;
 import com.kekens.soa_lab_1.validator.LabWorkValidator;
 import com.kekens.soa_lab_1.validator.exception.IncorrectDataException;
 
@@ -60,8 +60,8 @@ public class LabWorkServiceImpl implements LabWorkService {
     }
 
     @Override
-    public List<LabWork> findAllLabWorks(FilterConfiguration filterConfiguration) {
-        return labWorkDao.findAllFiltering(filterConfiguration);
+    public List<LabWork> findAllLabWorks(LabWorkFilterConfiguration labWorkFilterConfiguration) {
+        return labWorkDao.findAllFiltering(labWorkFilterConfiguration);
     }
 
     @Override
