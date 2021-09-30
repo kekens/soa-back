@@ -13,6 +13,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.Collections;
 import java.util.List;
 import java.util.logging.Logger;
 
@@ -31,22 +32,14 @@ public class LabWorkServlet extends HttpServlet {
 
         String path = request.getPathInfo();
 
+        log.info("PATH " + path);
+
         if (path == null) {
-            // Get LabWork by id or all LabWorks
-            String labWorkJsonString;
+            // Filter
+            LabWorkFilterConfiguration labWorkFilterConfiguration = parseFilterRequest(request);
+            List<LabWork> listLabWork = labWorkService.findAllLabWorks(labWorkFilterConfiguration);
 
-            if (request.getParameter("id") == null) {
-                // Filter
-                LabWorkFilterConfiguration labWorkFilterConfiguration = parseFilterRequest(request);
-
-                List<LabWork> listLabWork = labWorkService.findAllLabWorks(labWorkFilterConfiguration);
-                labWorkJsonString = jsonUtilLabWork.buildJsonStringFromList(listLabWork);
-            } else {
-                LabWork labWork = labWorkService.findLabWorkById(Integer.parseInt(request.getParameter("id")));
-                labWorkJsonString = jsonUtilLabWork.buildJsonStringFromObject(labWork);
-            }
-
-            sendResponse(response, labWorkJsonString);
+            sendResponse(response, jsonUtilLabWork.buildJsonStringFromList(listLabWork));
         } else if (path.equals("/difficulty/count")) {
             // Get count of LabWork which has difficulty more than
             try {
@@ -60,6 +53,14 @@ public class LabWorkServlet extends HttpServlet {
             // Get all LabWorks which contains name
             List<LabWork> listLabWork = labWorkService.findAllLabWorkByName(request.getParameter("name_substr"));
             sendResponse(response, jsonUtilLabWork.buildJsonStringFromList(listLabWork));
+        } else {
+            path = path.replaceAll("/","");
+            try {
+                LabWork labWork = labWorkService.findLabWorkById(Integer.parseInt(path));
+                sendResponse(response,jsonUtilLabWork.buildJsonStringFromObject(labWork));
+            } catch (NumberFormatException e) {
+                sendErrorListResponse(response, Collections.singletonList("Incorrect path"));
+            }
         }
 
     }

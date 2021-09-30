@@ -59,34 +59,7 @@ public class LabWorkDao {
             Join<LabWork, Coordinates> joinCoordinates = from.join("coordinates");
             Join<LabWork, Discipline> joinDiscipline = from.join("discipline");
 
-            // TODO METHOD SET ORDER
-            if (labWorkFilterConfiguration.sortingParams != null) {
-                List<Order> orderList = new ArrayList<>();
-
-                for (String sortParam : labWorkFilterConfiguration.sortingParams) {
-                    String[] args = sortParam.split("-");
-
-                    if ((args[0].startsWith("coordinates_")) || (args[0].startsWith("discipline_"))) {
-                        boolean isCoordinates = args[0].startsWith("coordinates_");
-                        Join join = isCoordinates ? joinCoordinates : joinDiscipline;
-                        args[0] = isCoordinates ? args[0].replaceAll("coordinates_", "") : args[0].replaceAll("discipline_", "");
-
-                        if ((args.length == 1) || ((args.length == 2) && (args[1].equals("asc")))) {
-                            orderList.add(criteriaBuilder.asc(join.get(args[0])));
-                        } else if (args.length == 2) {
-                            orderList.add(criteriaBuilder.desc(join.get(args[0])));
-                        }
-                    } else {
-                        if ((args.length == 1) || ((args.length == 2) && (args[1].equals("asc")))) {
-                            orderList.add(criteriaBuilder.asc(from.get(sortParam)));
-                        } else if (args.length == 2) {
-                            orderList.add(criteriaBuilder.desc(from.get(args[0])));
-                        }
-                    }
-                }
-
-                criteriaQuery.orderBy(orderList);
-            }
+            criteriaQuery.orderBy(labWorkFilterConfiguration.setOrder(from, joinCoordinates, joinDiscipline, criteriaBuilder));
 
             Predicate predicate = labWorkFilterConfiguration.getPredicate(from, joinCoordinates, joinDiscipline, criteriaBuilder);
             criteriaQuery.where(predicate);

@@ -5,10 +5,7 @@ import com.kekens.soa_lab_1.model.Difficulty;
 import com.kekens.soa_lab_1.model.Discipline;
 import com.kekens.soa_lab_1.model.LabWork;
 
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.Join;
-import javax.persistence.criteria.Predicate;
-import javax.persistence.criteria.Root;
+import javax.persistence.criteria.*;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
@@ -54,6 +51,40 @@ public class LabWorkFilterConfiguration {
         this.sortingParams = sortingParams;
         this.pageSize = pageSize == null ? 10 : Integer.parseInt(pageSize);
         this.pageIndex = pageIndex == null ? 1 : Integer.parseInt(pageIndex);
+    }
+
+    public List<Order> setOrder(Root<LabWork> from, Join<LabWork, Coordinates> joinCoordinates,
+                                Join<LabWork, Discipline> joinDiscipline, CriteriaBuilder criteriaBuilder)
+    {
+        List<Order> orderList = new ArrayList<>();
+
+        if (sortingParams != null) {
+
+            for (String sortParam : sortingParams) {
+                String[] args = sortParam.split("-");
+
+                if ((args[0].startsWith("coordinates_")) || (args[0].startsWith("discipline_"))) {
+                    boolean isCoordinates = args[0].startsWith("coordinates_");
+                    Join join = isCoordinates ? joinCoordinates : joinDiscipline;
+                    args[0] = isCoordinates ? args[0].replaceAll("coordinates_", "") : args[0].replaceAll("discipline_", "");
+
+                    if ((args.length == 1) || ((args.length == 2) && (args[1].equals("asc")))) {
+                        orderList.add(criteriaBuilder.asc(join.get(args[0])));
+                    } else if (args.length == 2) {
+                        orderList.add(criteriaBuilder.desc(join.get(args[0])));
+                    }
+                } else {
+                    if ((args.length == 1) || ((args.length == 2) && (args[1].equals("asc")))) {
+                        orderList.add(criteriaBuilder.asc(from.get(sortParam)));
+                    } else if (args.length == 2) {
+                        orderList.add(criteriaBuilder.desc(from.get(args[0])));
+                    }
+                }
+            }
+
+        }
+
+        return orderList;
     }
 
     public Predicate getPredicate(Root<LabWork> from, Join<LabWork, Coordinates> joinCoordinates,
