@@ -1,16 +1,18 @@
 package com.kekens.soa_lab_1.util;
 
 import com.kekens.soa_lab_1.model.Coordinates;
-import com.kekens.soa_lab_1.model.Difficulty;
 import com.kekens.soa_lab_1.model.Discipline;
 import com.kekens.soa_lab_1.model.LabWork;
 
 import javax.persistence.criteria.*;
 import java.time.LocalDate;
 import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class LabWorkFilterConfiguration {
 
@@ -23,34 +25,31 @@ public class LabWorkFilterConfiguration {
     private final static String PARAM_DISCIPLINE_NAME = "name";
     private final static String PARAM_DISCIPLINE_LECTURE_HOURS = "lectureHours";
 
-    private String name;
-    private Long coordinatesX;
-    private Integer coordinatesY;
-    private String creationDate;
-    private Integer minimalPoint;
-    private Difficulty difficulty;
-    private String disciplineName;
-    private Long disciplineLectureHours;
+    private String[] nameStrArray;
+    private String[] coordinatesXStrArray;
+    private String[] coordinatesYStrArray;
+    private String[] creationDateStrArray;
+    private String[] minimalPointStrArray;
+    private String[] difficultyStrArray;
+    private String[] disciplineNameStrArray;
+    private String[] disciplineLectureHoursStrArray;
 
     public String[] sortingParams;
     public int pageSize;
     public int pageIndex;
 
-    public LabWorkFilterConfiguration(String name, String coordinatesX, String coordinatesY,
-                                      String creationDate, String minimalPoint, String difficulty,
-                                      String disciplineName, String disciplineLectureHours,
-                                      String[] sortingParams, String pageSize, String pageIndex) {
-        this.name = name;
-        this.coordinatesX = coordinatesX == null ? null : Long.parseLong(coordinatesX);
-        this.coordinatesY = coordinatesY == null ? null : Integer.parseInt(coordinatesY);
-        this.creationDate = creationDate;
-        this.minimalPoint = minimalPoint == null ? null : Integer.parseInt(minimalPoint);
-        this.difficulty = difficulty == null ? null : Difficulty.valueOf(difficulty);
-        this.disciplineName = disciplineName;
-        this.disciplineLectureHours = disciplineLectureHours == null ? null : Long.parseLong(disciplineLectureHours);
-        this.sortingParams = sortingParams;
-        this.pageSize = pageSize == null ? 10 : Integer.parseInt(pageSize);
-        this.pageIndex = pageIndex == null ? 1 : Integer.parseInt(pageIndex);
+    public LabWorkFilterConfiguration(Map<String, String[]> parameterMap) {
+        this.nameStrArray = parameterMap.get("name");
+        this.coordinatesXStrArray = parameterMap.get("coordinates_x");
+        this.coordinatesYStrArray = parameterMap.get("coordinates_y");
+        this.creationDateStrArray = parameterMap.get("creationDate");
+        this.minimalPointStrArray = parameterMap.get("minimalPoint");
+        this.difficultyStrArray = parameterMap.get("difficulty");
+        this.disciplineNameStrArray = parameterMap.get("disciplineName");
+        this.disciplineLectureHoursStrArray = parameterMap.get("disciplineLectureHours");
+        this.sortingParams = parameterMap.get("sort");
+        this.pageSize = parameterMap.get("page") == null ? 10 : Integer.parseInt(parameterMap.get("page")[0]);
+        this.pageIndex = parameterMap.get("count") == null ? 1 : Integer.parseInt(parameterMap.get("count")[0]);
     }
 
     public List<Order> setOrder(Root<LabWork> from, Join<LabWork, Coordinates> joinCoordinates,
@@ -61,11 +60,11 @@ public class LabWorkFilterConfiguration {
         if (sortingParams != null) {
 
             for (String sortParam : sortingParams) {
-                String[] args = sortParam.split("-");
+                String[] args = sortParam.split(":");
 
                 if ((args[0].startsWith("coordinates_")) || (args[0].startsWith("discipline_"))) {
                     boolean isCoordinates = args[0].startsWith("coordinates_");
-                    Join join = isCoordinates ? joinCoordinates : joinDiscipline;
+                    Join<?,?> join = isCoordinates ? joinCoordinates : joinDiscipline;
                     args[0] = isCoordinates ? args[0].replaceAll("coordinates_", "") : args[0].replaceAll("discipline_", "");
 
                     if ((args.length == 1) || ((args.length == 2) && (args[1].equals("asc")))) {
@@ -92,43 +91,102 @@ public class LabWorkFilterConfiguration {
     {
         List<Predicate> predicateList = new ArrayList<>();
 
-        if (name != null) {
-            predicateList.add(criteriaBuilder.like(from.get(PARAM_NAME), getLike(name)));
-        }
+        addStringPredicates(from, criteriaBuilder, predicateList, nameStrArray, PARAM_NAME);
+        addNumberPredicates(joinCoordinates, criteriaBuilder, predicateList, coordinatesXStrArray, PARAM_COORDINATES_X);
+        addNumberPredicates(joinCoordinates, criteriaBuilder, predicateList, coordinatesYStrArray, PARAM_COORDINATES_Y);
+        addNumberPredicates(from, criteriaBuilder, predicateList, minimalPointStrArray, PARAM_MINIMAL_POINT);
+        addNumberPredicates(from, criteriaBuilder, predicateList, difficultyStrArray, PARAM_DIFFICULTY);
+        addStringPredicates(joinDiscipline, criteriaBuilder, predicateList, disciplineNameStrArray, PARAM_DISCIPLINE_NAME);
+        addNumberPredicates(joinDiscipline, criteriaBuilder, predicateList, disciplineLectureHoursStrArray, PARAM_DISCIPLINE_LECTURE_HOURS);
 
-        if (coordinatesX != null) {
-            predicateList.add(criteriaBuilder.equal(joinCoordinates.get(PARAM_COORDINATES_X), coordinatesX));
-        }
+        if (creationDateStrArray != null) {
+            for (String dateStr: creationDateStrArray) {
+                String[] args = dateStr.split(":");
 
-        if (coordinatesY != null) {
-            predicateList.add(criteriaBuilder.equal(joinCoordinates.get(PARAM_COORDINATES_Y), coordinatesY));
-        }
+                DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+                LocalDate date;
 
-        if (creationDate != null) {
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-            LocalDate date = LocalDate.parse(creationDate, formatter);
+                if (args.length == 1) {
+                    date = LocalDate.parse(dateStr, formatter);
+                    predicateList.add(criteriaBuilder.greaterThanOrEqualTo(from.get(PARAM_CREATION_DATE), date.atStartOfDay(ZoneId.systemDefault())));
+                    predicateList.add(criteriaBuilder.lessThanOrEqualTo(from.get(PARAM_CREATION_DATE), date.plusDays(1).atStartOfDay(ZoneId.systemDefault())));
+                } else {
+                    date = LocalDate.parse(args[1], formatter);
+                    ZonedDateTime zonedDateTime = date.atStartOfDay(ZoneId.systemDefault()).truncatedTo(ChronoUnit.DAYS);
+                    switch (args[0]) {
+                        case ">":
+                            predicateList.add(criteriaBuilder.greaterThanOrEqualTo(from.get(PARAM_CREATION_DATE), zonedDateTime.plusDays(1)));
+                            break;
+                        case "<":
+                            predicateList.add(criteriaBuilder.lessThan(from.get(PARAM_CREATION_DATE), zonedDateTime));
+                            break;
+                    }
+                }
+            }
 
-            predicateList.add(criteriaBuilder.greaterThanOrEqualTo(from.get(PARAM_CREATION_DATE), date.atStartOfDay(ZoneId.systemDefault())));
-            predicateList.add(criteriaBuilder.lessThanOrEqualTo(from.get(PARAM_CREATION_DATE), date.plusDays(1).atStartOfDay(ZoneId.systemDefault())));
-        }
-
-        if (minimalPoint != null) {
-            predicateList.add(criteriaBuilder.equal(from.get(PARAM_MINIMAL_POINT), minimalPoint));
-        }
-
-        if (difficulty != null) {
-            predicateList.add(criteriaBuilder.equal(from.get(PARAM_DIFFICULTY), difficulty));
-        }
-
-        if (disciplineName != null) {
-            predicateList.add(criteriaBuilder.like(joinDiscipline.get(PARAM_DISCIPLINE_NAME), getLike(disciplineName)));
-        }
-
-        if (disciplineLectureHours != null) {
-            predicateList.add(criteriaBuilder.equal(joinDiscipline.get(PARAM_DISCIPLINE_LECTURE_HOURS), disciplineLectureHours));
         }
 
         return criteriaBuilder.and(predicateList.toArray(new Predicate[0]));
+    }
+
+    private <T extends From<?,?>> void addNumberPredicates(T object, CriteriaBuilder criteriaBuilder, List<Predicate> predicateList,
+                                         String[] strArray, String param) {
+        if (strArray != null) {
+            for (String numStr : strArray) {
+                String[] args = numStr.split(":");
+
+                Long num;
+
+                if (args.length == 1) {
+                    num = Long.parseLong(numStr);
+                    predicateList.add(criteriaBuilder.equal(object.get(param), num));
+                } else {
+                    num = Long.parseLong(args[1]);
+                    switch (args[0]) {
+                        case ">=":
+                            predicateList.add(criteriaBuilder.greaterThanOrEqualTo(object.get(param), num));
+                            break;
+                        case "<=":
+                            predicateList.add(criteriaBuilder.lessThanOrEqualTo(object.get(param), num));
+                            break;
+                        case ">":
+                            predicateList.add(criteriaBuilder.greaterThan(object.get(param), num));
+                            break;
+                        case "<":
+                            predicateList.add(criteriaBuilder.lessThan(object.get(param), num));
+                            break;
+                    }
+                }
+            }
+        }
+    }
+
+    private <T extends From<?,?>> void addStringPredicates(T object, CriteriaBuilder criteriaBuilder, List<Predicate> predicateList,
+                                     String[] strArray, String param) {
+        if (strArray != null) {
+            for (String str : strArray) {
+                String[] args = str.split(":");
+
+                if (args.length == 1) {
+                    predicateList.add(criteriaBuilder.like(object.get(param), getLike(str)));
+                } else {
+                    switch (args[0]) {
+                        case ">=":
+                            predicateList.add(criteriaBuilder.greaterThanOrEqualTo(object.get(param), args[1]));
+                            break;
+                        case "<=":
+                            predicateList.add(criteriaBuilder.lessThanOrEqualTo(object.get(param), args[1]));
+                            break;
+                        case ">":
+                            predicateList.add(criteriaBuilder.greaterThan(object.get(param), args[1]));
+                            break;
+                        case "<":
+                            predicateList.add(criteriaBuilder.lessThan(object.get(param), args[1]));
+                            break;
+                    }
+                }
+            }
+        }
     }
 
     private String getLike(String s) {

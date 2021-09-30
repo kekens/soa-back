@@ -136,18 +136,20 @@ public class LabWorkServlet extends HttpServlet {
     }
 
     private LabWorkFilterConfiguration parseFilterRequest(HttpServletRequest request) {
-        return new LabWorkFilterConfiguration(
-                request.getParameter("name"),
-                request.getParameter("coordinates_x"),
-                request.getParameter("coordinates_y"),
-                request.getParameter("creationDate"),
-                request.getParameter("minimalPoint"),
-                request.getParameter("difficulty"),
-                request.getParameter("disciplineName"),
-                request.getParameter("disciplineLectureHours"),
-                request.getParameterValues("sort"),
-                request.getParameter("count"),
-                request.getParameter("page")
-                );
+//        return new LabWorkFilterConfiguration(
+//                request.getParameter("name"),
+//                request.getParameter("coordinates_x"),
+//                request.getParameter("coordinates_y"),
+//                request.getParameter("creationDate"),
+//                request.getParameter("minimalPoint"),
+//                request.getParameter("difficulty"),
+//                request.getParameter("disciplineName"),
+//                request.getParameter("disciplineLectureHours"),
+//                request.getParameterValues("sort"),
+//                request.getParameter("count"),
+//                request.getParameter("page")
+//                );
+
+        return new LabWorkFilterConfiguration(request.getParameterMap());
     }
 }
