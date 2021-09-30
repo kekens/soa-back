@@ -7,11 +7,11 @@ import java.util.List;
 
 public class CoordinatesValidator {
 
-    public List<String> validateCoordinates(Coordinates coordinates) {
-        List<String> errorList = new ArrayList<>();
+    public List<IntegrityError> validateCoordinates(Coordinates coordinates) {
+        List<IntegrityError> errorList = new ArrayList<>();
 
         if (coordinates.getY() <= -895) {
-            errorList.add("Y coordinate must be more than -895");
+            errorList.add(new IntegrityError(200, "Y coordinate must be more than -895"));
         }
 
         return errorList;

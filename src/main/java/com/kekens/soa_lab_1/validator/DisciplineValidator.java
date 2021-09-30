@@ -7,11 +7,11 @@ import java.util.List;
 
 public class DisciplineValidator {
 
-    public List<String> validateDiscipline(Discipline discipline) {
-        List<String> errorList = new ArrayList<>();
+    public List<IntegrityError> validateDiscipline(Discipline discipline) {
+        List<IntegrityError> errorList = new ArrayList<>();
 
         if ((discipline.getName() == null) || (discipline.getName().isEmpty())) {
-            errorList.add("Discipline name mustn't be empty");
+            errorList.add(new IntegrityError(300, "Discipline name mustn't be empty"));
         }
 
         return errorList;

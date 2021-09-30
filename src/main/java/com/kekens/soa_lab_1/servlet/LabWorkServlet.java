@@ -5,6 +5,7 @@ import com.kekens.soa_lab_1.service.LabWorkService;
 import com.kekens.soa_lab_1.service.impl.LabWorkServiceImpl;
 import com.kekens.soa_lab_1.util.LabWorkFilterConfiguration;
 import com.kekens.soa_lab_1.util.JsonUtil;
+import com.kekens.soa_lab_1.validator.IntegrityError;
 import com.kekens.soa_lab_1.validator.exception.IncorrectDataException;
 
 import javax.servlet.annotation.WebServlet;
@@ -22,7 +23,7 @@ public class LabWorkServlet extends HttpServlet {
 
     private final LabWorkService labWorkService = new LabWorkServiceImpl();
     private final JsonUtil<LabWork> jsonUtilLabWork = new JsonUtil<>(LabWork.class);
-    private final JsonUtil<String> jsonUtilString = new JsonUtil<>(String.class);
+    private final JsonUtil<IntegrityError> jsonUtilString = new JsonUtil<>(IntegrityError.class);
 
     static Logger log = Logger.getLogger(LabWorkServlet.class.getName());
 
@@ -59,7 +60,7 @@ public class LabWorkServlet extends HttpServlet {
                 LabWork labWork = labWorkService.findLabWorkById(Integer.parseInt(path));
                 sendResponse(response,jsonUtilLabWork.buildJsonStringFromObject(labWork));
             } catch (NumberFormatException e) {
-                sendErrorListResponse(response, Collections.singletonList("Incorrect path"));
+                sendErrorListResponse(response, Collections.singletonList(new IntegrityError(404,"Incorrect path")));
             }
         }
 
@@ -121,7 +122,7 @@ public class LabWorkServlet extends HttpServlet {
 
     }
 
-    private void sendErrorListResponse(HttpServletResponse response, List<String> errorList) throws IOException {
+    private void sendErrorListResponse(HttpServletResponse response, List<IntegrityError> errorList) throws IOException {
         response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
         sendResponse(response, jsonUtilString.buildJsonStringFromList(errorList));
     }
