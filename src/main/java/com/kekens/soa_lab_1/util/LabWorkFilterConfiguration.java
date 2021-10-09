@@ -1,6 +1,7 @@
 package com.kekens.soa_lab_1.util;
 
 import com.kekens.soa_lab_1.model.Coordinates;
+import com.kekens.soa_lab_1.model.Difficulty;
 import com.kekens.soa_lab_1.model.Discipline;
 import com.kekens.soa_lab_1.model.LabWork;
 
@@ -95,9 +96,32 @@ public class LabWorkFilterConfiguration {
         addNumberPredicates(joinCoordinates, criteriaBuilder, predicateList, coordinatesXStrArray, PARAM_COORDINATES_X);
         addNumberPredicates(joinCoordinates, criteriaBuilder, predicateList, coordinatesYStrArray, PARAM_COORDINATES_Y);
         addNumberPredicates(from, criteriaBuilder, predicateList, minimalPointStrArray, PARAM_MINIMAL_POINT);
-        addNumberPredicates(from, criteriaBuilder, predicateList, difficultyStrArray, PARAM_DIFFICULTY);
         addStringPredicates(joinDiscipline, criteriaBuilder, predicateList, disciplineNameStrArray, PARAM_DISCIPLINE_NAME);
         addNumberPredicates(joinDiscipline, criteriaBuilder, predicateList, disciplineLectureHoursStrArray, PARAM_DISCIPLINE_LECTURE_HOURS);
+
+        if (difficultyStrArray != null) {
+            for (String diffStr: difficultyStrArray) {
+                String[] args = diffStr.split(":");
+
+                if (args.length == 1) {
+                    predicateList.add(criteriaBuilder.equal(from.get(PARAM_DIFFICULTY), Difficulty.valueOf(diffStr)));
+                } else {
+                    // TODO Filtering by less and more for Difficulty
+//                    date = LocalDate.parse(args[1], formatter);
+//                    ZonedDateTime zonedDateTime = date.atStartOfDay(ZoneId.systemDefault()).truncatedTo(ChronoUnit.DAYS);
+//                    switch (args[0]) {
+//                        case ">":
+//                            predicateList.add(criteriaBuilder.greaterThanOrEqualTo(from.get(PARAM_CREATION_DATE), zonedDateTime.plusDays(1)));
+//                            break;
+//                        case "<":
+//                            predicateList.add(criteriaBuilder.lessThan(from.get(PARAM_CREATION_DATE), zonedDateTime));
+//                            break;
+//                    }
+                }
+            }
+
+
+        }
 
         if (creationDateStrArray != null) {
             for (String dateStr: creationDateStrArray) {
@@ -119,6 +143,12 @@ public class LabWorkFilterConfiguration {
                             break;
                         case "<":
                             predicateList.add(criteriaBuilder.lessThan(from.get(PARAM_CREATION_DATE), zonedDateTime));
+                            break;
+                        case ">=":
+                            predicateList.add(criteriaBuilder.greaterThanOrEqualTo(from.get(PARAM_CREATION_DATE), zonedDateTime));
+                            break;
+                        case "<=":
+                            predicateList.add(criteriaBuilder.lessThan(from.get(PARAM_CREATION_DATE), zonedDateTime.plusDays(1)));
                             break;
                     }
                 }
@@ -168,7 +198,7 @@ public class LabWorkFilterConfiguration {
                 String[] args = str.split(":");
 
                 if (args.length == 1) {
-                    predicateList.add(criteriaBuilder.like(object.get(param), getLike(str)));
+                    predicateList.add(criteriaBuilder.like(criteriaBuilder.upper(object.get(param)), getLike(str)));
                 } else {
                     switch (args[0]) {
                         case ">=":
@@ -190,7 +220,7 @@ public class LabWorkFilterConfiguration {
     }
 
     private String getLike(String s) {
-        return "%" + s + "%";
+        return "%" + s.toUpperCase() + "%";
     }
 }
 

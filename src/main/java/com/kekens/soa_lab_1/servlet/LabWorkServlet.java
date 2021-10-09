@@ -33,12 +33,12 @@ public class LabWorkServlet extends HttpServlet {
 
         String path = request.getPathInfo();
 
-        log.info("PATH " + path);
-
         if (path == null) {
             // Filter
             LabWorkFilterConfiguration labWorkFilterConfiguration = parseFilterRequest(request);
             List<LabWork> listLabWork = labWorkService.findAllLabWorks(labWorkFilterConfiguration);
+
+            log.info(request.getQueryString());
 
             sendResponse(response, jsonUtilLabWork.buildJsonStringFromList(listLabWork));
         } else if (path.equals("/difficulty/count")) {
@@ -137,20 +137,6 @@ public class LabWorkServlet extends HttpServlet {
     }
 
     private LabWorkFilterConfiguration parseFilterRequest(HttpServletRequest request) {
-//        return new LabWorkFilterConfiguration(
-//                request.getParameter("name"),
-//                request.getParameter("coordinates_x"),
-//                request.getParameter("coordinates_y"),
-//                request.getParameter("creationDate"),
-//                request.getParameter("minimalPoint"),
-//                request.getParameter("difficulty"),
-//                request.getParameter("disciplineName"),
-//                request.getParameter("disciplineLectureHours"),
-//                request.getParameterValues("sort"),
-//                request.getParameter("count"),
-//                request.getParameter("page")
-//                );
-
         return new LabWorkFilterConfiguration(request.getParameterMap());
     }
 }
