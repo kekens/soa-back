@@ -23,7 +23,8 @@ public class LabWorkServlet extends HttpServlet {
 
     private final LabWorkService labWorkService = new LabWorkServiceImpl();
     private final JsonUtil<LabWork> jsonUtilLabWork = new JsonUtil<>(LabWork.class);
-    private final JsonUtil<IntegrityError> jsonUtilString = new JsonUtil<>(IntegrityError.class);
+    private final JsonUtil<IntegrityError> jsonUtilIntegrityError = new JsonUtil<>(IntegrityError.class);
+    private final JsonUtil<String> jsonUtilString = new JsonUtil<>(String.class);
 
     static Logger log = Logger.getLogger(LabWorkServlet.class.getName());
 
@@ -46,7 +47,7 @@ public class LabWorkServlet extends HttpServlet {
             try {
                 String diff = request.getParameter("difficulty");
                 int count = labWorkService.getCountLabWorkByDifficulty(diff);
-                sendResponse(response, String.format("Count of LabWork which has difficulty more than %s: %d", diff, count));
+                sendResponse(response, jsonUtilString.buildJsonStringFromObject(String.format("%s: %d", diff, count)));
             } catch (IncorrectDataException e) {
                 sendErrorListResponse(response, e.getErrorList());
             }
@@ -67,8 +68,8 @@ public class LabWorkServlet extends HttpServlet {
     }
 
     @Override
-    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        log.info("POST");
+    protected void doPut(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        log.info("PUT");
 
         // Get LabWork object from HttpServletRequest
         LabWork labWork = jsonUtilLabWork.buildObjectFromRequest(request);
@@ -83,8 +84,8 @@ public class LabWorkServlet extends HttpServlet {
     }
 
     @Override
-    protected void doPut(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        log.info("PUT");
+    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        log.info("POST");
 
         // Get LabWork object from HttpServletRequest
         LabWork labWork = jsonUtilLabWork.buildObjectFromRequest(request);
@@ -103,8 +104,11 @@ public class LabWorkServlet extends HttpServlet {
         log.info("DELETE");
 
         String path = request.getPathInfo();
+        log.info(request.getQueryString());
 
-        if (path.equals("/difficulty")) {
+        if ((path != null) && (path.equals("/difficulty"))) {
+            log.info(request.getQueryString());
+
             // Delete one LabWork by difficulty
             try {
                 labWorkService.deleteLabWorkByDifficulty(request.getParameter("difficulty"));
@@ -124,7 +128,7 @@ public class LabWorkServlet extends HttpServlet {
 
     private void sendErrorListResponse(HttpServletResponse response, List<IntegrityError> errorList) throws IOException {
         response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-        sendResponse(response, jsonUtilString.buildJsonStringFromList(errorList));
+        sendResponse(response, jsonUtilIntegrityError.buildJsonStringFromList(errorList));
     }
 
     private void sendResponse(HttpServletResponse response, String responseString) throws IOException {
