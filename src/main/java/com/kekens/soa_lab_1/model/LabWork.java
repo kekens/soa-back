@@ -1,5 +1,6 @@
 package com.kekens.soa_lab_1.model;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -28,6 +29,7 @@ public class LabWork {
     private Coordinates coordinates; //Поле не может быть null
 
     @Column(updatable = false)
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "dd-MM-yyyy hh:mm", locale = "en")
     private java.time.ZonedDateTime creationDate = java.time.ZonedDateTime.now().truncatedTo(ChronoUnit.MINUTES); //Поле не может быть null, Значение этого поля должно генерироваться автоматически
 
     private Integer minimalPoint; //Поле может быть null, Значение поля должно быть больше 0

@@ -1,7 +1,7 @@
 package com.kekens.soa_lab_1.util;
 
-import com.google.gson.Gson;
-import com.kekens.soa_lab_1.model.LabWork;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.BufferedReader;
@@ -11,10 +11,11 @@ import java.util.List;
 public class JsonUtil<T> {
 
     private final Class<T> type;
-    private final Gson gson = new Gson();
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
     public JsonUtil(Class<T> type) {
         this.type = type;
+        objectMapper.findAndRegisterModules();
     }
 
     public T buildObjectFromRequest(HttpServletRequest request) throws IOException {
@@ -27,14 +28,14 @@ public class JsonUtil<T> {
             }
         }
 
-        return gson.fromJson(sb.toString(), type);
+        return objectMapper.readValue(sb.toString(), type);
     }
 
-    public String buildJsonStringFromObject(T object) {
-        return gson.toJson(object);
+    public String buildJsonStringFromObject(T object) throws JsonProcessingException {
+        return objectMapper.writeValueAsString(object);
     }
 
-    public String buildJsonStringFromList(List<T> list) {
-        return gson.toJson(list);
+    public String buildJsonStringFromList(List<T> list) throws JsonProcessingException {
+        return objectMapper.writeValueAsString(list);
     }
 }
