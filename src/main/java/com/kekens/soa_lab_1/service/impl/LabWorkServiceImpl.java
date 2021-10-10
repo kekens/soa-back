@@ -104,8 +104,9 @@ public class LabWorkServiceImpl implements LabWorkService {
 
         List<LabWork> listLabWork = labWorkDao.findAll();
 
+
         for (LabWork labWork : listLabWork) {
-            if (labWork.getDifficulty().value > difficulty.value) {
+            if ((labWork.getDifficulty() != null) && (labWork.getDifficulty().value > difficulty.value)) {
                 count++;
             }
         }
