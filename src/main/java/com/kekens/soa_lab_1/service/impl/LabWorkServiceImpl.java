@@ -19,8 +19,14 @@ public class LabWorkServiceImpl implements LabWorkService {
     private final LabWorkValidator labWorkValidator = new LabWorkValidator();
 
     @Override
-    public LabWork findLabWorkById(int id) {
-        return labWorkDao.findById(id);
+    public LabWork findLabWorkById(int id) throws IncorrectDataException {
+        LabWork labWork = labWorkDao.findById(id);
+
+        if (labWork == null) {
+            throw new IncorrectDataException(Collections.singletonList(new IntegrityError(104, "Not found LabWork with that ID: " + id)));
+        } else {
+            return labWork;
+        }
     }
 
     @Override

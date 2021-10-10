@@ -8,7 +8,7 @@ import java.util.List;
 
 public interface LabWorkService {
 
-    LabWork findLabWorkById(int id);
+    LabWork findLabWorkById(int id) throws IncorrectDataException;
     void createLabWork(LabWork labWork) throws IncorrectDataException;
     void updateLabWork(LabWork labWork) throws IncorrectDataException;
     void deleteLabWork(int id) throws IncorrectDataException;

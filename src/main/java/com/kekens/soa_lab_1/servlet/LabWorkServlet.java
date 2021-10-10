@@ -41,27 +41,29 @@ public class LabWorkServlet extends HttpServlet {
 
             log.info(request.getQueryString());
 
-            sendResponse(response, jsonUtilLabWork.buildJsonStringFromList(listLabWork));
+            sendOkResponse(response, jsonUtilLabWork.buildJsonStringFromList(listLabWork));
         } else if (path.equals("/difficulty/count")) {
             // Get count of LabWork which has difficulty more than
             try {
                 String diff = request.getParameter("difficulty");
                 int count = labWorkService.getCountLabWorkByDifficulty(diff);
-                sendResponse(response, jsonUtilString.buildJsonStringFromObject(String.format("%s: %d", diff, count)));
+                sendOkResponse(response, jsonUtilString.buildJsonStringFromObject(String.format("%s: %d", diff, count)));
             } catch (IncorrectDataException e) {
                 sendErrorListResponse(response, e.getErrorList());
             }
         } else if (path.equals("/name/substr")) {
             // Get all LabWorks which contains name
             List<LabWork> listLabWork = labWorkService.findAllLabWorkByName(request.getParameter("name_substr"));
-            sendResponse(response, jsonUtilLabWork.buildJsonStringFromList(listLabWork));
+            sendOkResponse(response, jsonUtilLabWork.buildJsonStringFromList(listLabWork));
         } else {
             path = path.replaceAll("/","");
             try {
                 LabWork labWork = labWorkService.findLabWorkById(Integer.parseInt(path));
-                sendResponse(response,jsonUtilLabWork.buildJsonStringFromObject(labWork));
+                sendOkResponse(response,jsonUtilLabWork.buildJsonStringFromObject(labWork));
             } catch (NumberFormatException e) {
                 sendErrorListResponse(response, Collections.singletonList(new IntegrityError(404,"Incorrect path")));
+            } catch (IncorrectDataException e) {
+                sendErrorListResponse(response, e.getErrorList());
             }
         }
 
@@ -106,24 +108,28 @@ public class LabWorkServlet extends HttpServlet {
         String path = request.getPathInfo();
         log.info(request.getQueryString());
 
-        if ((path != null) && (path.equals("/difficulty"))) {
-            log.info(request.getQueryString());
+        if (path != null) {
+            if (path.equals("/difficulty")) {
+                log.info(request.getQueryString());
 
-            // Delete one LabWork by difficulty
-            try {
-                labWorkService.deleteLabWorkByDifficulty(request.getParameter("difficulty"));
-            } catch (IncorrectDataException e) {
-                sendErrorListResponse(response, e.getErrorList());
-            }
-        } else {
-            // Delete LabWork by id
-            try {
-                labWorkService.deleteLabWork(Integer.parseInt(request.getParameter("id")));
-            } catch (IncorrectDataException e) {
-                sendErrorListResponse(response, e.getErrorList());
+                // Delete one LabWork by difficulty
+                try {
+                    labWorkService.deleteLabWorkByDifficulty(request.getParameter("difficulty"));
+                } catch (IncorrectDataException e) {
+                    sendErrorListResponse(response, e.getErrorList());
+                }
+            } else {
+                // Delete LabWork by id
+                path = path.replaceAll("/","");
+                try {
+                    labWorkService.deleteLabWork(Integer.parseInt(path));
+                } catch (NumberFormatException e) {
+                    sendErrorListResponse(response, Collections.singletonList(new IntegrityError(404,"Incorrect path")));
+                } catch (IncorrectDataException e) {
+                    sendErrorListResponse(response, e.getErrorList());
+                }
             }
         }
-
     }
 
     private void sendErrorListResponse(HttpServletResponse response, List<IntegrityError> errorList) throws IOException {
@@ -131,11 +137,15 @@ public class LabWorkServlet extends HttpServlet {
         sendResponse(response, jsonUtilIntegrityError.buildJsonStringFromList(errorList));
     }
 
+    private void sendOkResponse(HttpServletResponse response, String responseString) throws IOException {
+        response.setStatus(HttpServletResponse.SC_OK);
+        sendResponse(response, responseString);
+    }
+
     private void sendResponse(HttpServletResponse response, String responseString) throws IOException {
         PrintWriter out = response.getWriter();
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");
-        response.setStatus(HttpServletResponse.SC_OK);
         out.print(responseString);
         out.flush();
     }
