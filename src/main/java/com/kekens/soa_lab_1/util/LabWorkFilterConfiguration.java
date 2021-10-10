@@ -49,8 +49,8 @@ public class LabWorkFilterConfiguration {
         this.disciplineNameStrArray = parameterMap.get("disciplineName");
         this.disciplineLectureHoursStrArray = parameterMap.get("disciplineLectureHours");
         this.sortingParams = parameterMap.get("sort");
-        this.pageSize = parameterMap.get("page") == null ? 10 : Integer.parseInt(parameterMap.get("page")[0]);
-        this.pageIndex = parameterMap.get("count") == null ? 1 : Integer.parseInt(parameterMap.get("count")[0]);
+        this.pageSize = parameterMap.get("count") == null ? 1000 : Integer.parseInt(parameterMap.get("count")[0]);
+        this.pageIndex = parameterMap.get("page") == null ? 1 : Integer.parseInt(parameterMap.get("page")[0]);
     }
 
     public List<Order> setOrder(Root<LabWork> from, Join<LabWork, Coordinates> joinCoordinates,
