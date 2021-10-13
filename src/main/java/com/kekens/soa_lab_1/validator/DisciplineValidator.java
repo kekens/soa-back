@@ -14,7 +14,7 @@ public class DisciplineValidator {
             errorList.add(new IntegrityError(400, "Discipline name mustn't be empty"));
         }
 
-        if (discipline.getLectureHours() < 1) {
+        if ((discipline.getLectureHours() != null) && (discipline.getLectureHours() < 1)) {
             errorList.add(new IntegrityError(400, "Discipline lecture hours must be more than 0"));
         }
 

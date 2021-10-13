@@ -48,9 +48,8 @@ public class DisciplineServlet extends HttpServlet {
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        Discipline discipline = jsonUtilDiscipline.buildObjectFromRequest(request);
-
         try {
+            Discipline discipline = jsonUtilDiscipline.buildObjectFromRequest(request);
             disciplineService.createDiscipline(discipline);
         } catch (IncorrectDataException e) {
             sendResponse(response, jsonUtilIntegrityError.buildJsonStringFromList(e.getErrorList()), HttpServletResponse.SC_BAD_REQUEST);

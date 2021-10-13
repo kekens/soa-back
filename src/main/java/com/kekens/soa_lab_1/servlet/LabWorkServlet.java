@@ -77,12 +77,12 @@ public class LabWorkServlet extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws IOException {
         log.info("POST");
 
-        // Get LabWork object from HttpServletRequest
-        LabWork labWork = jsonUtilLabWork.buildObjectFromRequest(request);
-        log.info(labWork.toString());
-
         // Create LabWork
         try {
+            // Get LabWork object from HttpServletRequest
+            LabWork labWork = jsonUtilLabWork.buildObjectFromRequest(request);
+            log.info(labWork.toString());
+
             labWorkService.createLabWork(labWork);
         } catch (IncorrectDataException e) {
             sendResponse(response, jsonUtilIntegrityError.buildJsonStringFromList(e.getErrorList()), HttpServletResponse.SC_BAD_REQUEST);
