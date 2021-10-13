@@ -12,7 +12,7 @@ public interface LabWorkService {
     void createLabWork(LabWork labWork) throws IncorrectDataException;
     void updateLabWork(LabWork labWork) throws IncorrectDataException;
     void deleteLabWork(LabWork labWork);
-    List<LabWork> findAllLabWorks(LabWorkFilterConfiguration labWorkFilterConfiguration);
+    List<LabWork> findAllLabWorks(LabWorkFilterConfiguration labWorkFilterConfiguration) throws IncorrectDataException;
 
     LabWork deleteLabWorkByDifficulty(String diff) throws IncorrectDataException;
     int getCountLabWorkByDifficulty(String diff) throws IncorrectDataException;
