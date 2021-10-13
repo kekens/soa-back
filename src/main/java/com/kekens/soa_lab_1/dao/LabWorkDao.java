@@ -63,9 +63,12 @@ public class LabWorkDao {
             Predicate predicate = labWorkFilterConfiguration.getPredicate(from, joinCoordinates, joinDiscipline, criteriaBuilder);
             criteriaQuery.where(predicate);
 
+            int size = Integer.parseInt(labWorkFilterConfiguration.pageSize);
+            int index = Integer.parseInt(labWorkFilterConfiguration.pageIndex);
+
             TypedQuery<LabWork> typedQuery = session.createQuery(criteriaQuery);
-            typedQuery.setFirstResult((labWorkFilterConfiguration.pageIndex - 1) * labWorkFilterConfiguration.pageSize);
-            typedQuery.setMaxResults(labWorkFilterConfiguration.pageSize);
+            typedQuery.setFirstResult((index - 1) * size);
+            typedQuery.setMaxResults(size);
 
             return typedQuery.getResultList();
         }

@@ -4,14 +4,17 @@ import com.kekens.soa_lab_1.model.Coordinates;
 import com.kekens.soa_lab_1.model.Difficulty;
 import com.kekens.soa_lab_1.model.Discipline;
 import com.kekens.soa_lab_1.model.LabWork;
+import com.kekens.soa_lab_1.validator.IntegrityError;
 
 import javax.persistence.criteria.*;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -26,18 +29,18 @@ public class LabWorkFilterConfiguration {
     private final static String PARAM_DISCIPLINE_NAME = "name";
     private final static String PARAM_DISCIPLINE_LECTURE_HOURS = "lectureHours";
 
-    private String[] nameStrArray;
-    private String[] coordinatesXStrArray;
-    private String[] coordinatesYStrArray;
-    private String[] creationDateStrArray;
-    private String[] minimalPointStrArray;
-    private String[] difficultyStrArray;
-    private String[] disciplineNameStrArray;
-    private String[] disciplineLectureHoursStrArray;
+    private final String[] nameStrArray;
+    private final String[] coordinatesXStrArray;
+    private final String[] coordinatesYStrArray;
+    private final String[] creationDateStrArray;
+    private final String[] minimalPointStrArray;
+    private final String[] difficultyStrArray;
+    private final String[] disciplineNameStrArray;
+    private final String[] disciplineLectureHoursStrArray;
 
     public String[] sortingParams;
-    public int pageSize;
-    public int pageIndex;
+    public String pageSize;
+    public String pageIndex;
 
     public LabWorkFilterConfiguration(Map<String, String[]> parameterMap) {
         this.nameStrArray = parameterMap.get("name");
@@ -49,8 +52,113 @@ public class LabWorkFilterConfiguration {
         this.disciplineNameStrArray = parameterMap.get("disciplineName");
         this.disciplineLectureHoursStrArray = parameterMap.get("disciplineLectureHours");
         this.sortingParams = parameterMap.get("sort");
-        this.pageSize = parameterMap.get("count") == null ? 30 : Integer.parseInt(parameterMap.get("count")[0]);
-        this.pageIndex = parameterMap.get("page") == null ? 1 : Integer.parseInt(parameterMap.get("page")[0]);
+        this.pageSize = parameterMap.get("count") != null ? parameterMap.get("count")[0] : null;
+        this.pageIndex = parameterMap.get("page") != null ? parameterMap.get("page")[0] : null;
+    }
+
+    public List<IntegrityError> validateFilterConfiguration() {
+        List<IntegrityError> errorList = new ArrayList<>();
+
+        // Number filter validation
+        errorList.addAll(validateNumberFilter(this.coordinatesXStrArray, PARAM_COORDINATES_X));
+        errorList.addAll(validateNumberFilter(this.coordinatesYStrArray, PARAM_COORDINATES_Y));
+        errorList.addAll(validateNumberFilter(this.minimalPointStrArray, PARAM_MINIMAL_POINT));
+        errorList.addAll(validateNumberFilter(this.disciplineLectureHoursStrArray, PARAM_DISCIPLINE_LECTURE_HOURS));
+
+        // Difficulty filter validation
+        if (this.difficultyStrArray != null) {
+            for (String dif : this.difficultyStrArray) {
+                String[] args = dif.split(":");
+                String difStr = args.length == 1 ? dif : args[1];
+
+                try {
+                    Difficulty.valueOf(difStr);
+                } catch (IllegalArgumentException e) {
+                    errorList.add(new IntegrityError(400, String.format("Incorrect value '%s' of 'difficulty' param", difStr)));
+                }
+            }
+        }
+
+        // Creation date filter validation
+        if (this.creationDateStrArray != null) {
+            for (String date : this.creationDateStrArray) {
+                String[] args = date.split(":");
+                String dateStr = args.length == 1 ? date : args[1];
+
+                try {
+                    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+                    LocalDate.parse(dateStr, formatter);
+                } catch (DateTimeParseException e) {
+                    errorList.add(new IntegrityError(400, String.format("Incorrect value '%s' of 'creationDate' param with pattern 'yyyy-MM-dd'", dateStr)));
+                }
+            }
+        }
+
+        // Paging filter validation
+        if (this.pageSize != null) {
+            try {
+                int size = Integer.parseInt(this.pageSize);
+
+                if (size < 1) {
+                    errorList.add(new IntegrityError(400, String.format("Incorrect value '%s' of count of rows per page", this.pageSize)));
+                }
+            } catch (NumberFormatException e) {
+                errorList.add(new IntegrityError(400, String.format("Incorrect value '%s' of count of rows per page", this.pageSize)));
+            }
+        } else {
+            this.pageSize = "30";
+        }
+
+        if (this.pageIndex != null) {
+            try {
+                int index = Integer.parseInt(this.pageIndex);
+
+                if (index < 1) {
+                    errorList.add(new IntegrityError(400, String.format("Incorrect value '%s' of page index", this.pageIndex)));
+                }
+            } catch (NumberFormatException e) {
+                errorList.add(new IntegrityError(400, String.format("Incorrect value '%s' of page index", this.pageIndex)));
+            }
+        } else {
+            this.pageIndex = "1";
+        }
+
+        // Sorting params validation
+        final List<String> listSortingParams = new ArrayList<>(Arrays.asList(PARAM_NAME, "coordinates_x", "coordinates_y", PARAM_DIFFICULTY,
+                PARAM_CREATION_DATE, PARAM_MINIMAL_POINT, "discipline_name", "discipline_lectureHours"));
+
+        if (this.sortingParams != null) {
+            for (String sort: this.sortingParams) {
+                String[] args = sort.split(":");
+                String sortStr = args.length == 1 ? sort : args[0];
+
+                if (!listSortingParams.contains(sortStr)) {
+                    errorList.add(new IntegrityError(400, "Incorrect value '" + sortStr + "' of sorting param"));
+                }
+            }
+        }
+
+        return errorList;
+    }
+
+    private List<IntegrityError> validateNumberFilter(String[] strArray, String param) {
+        List<IntegrityError> errorList = new ArrayList<>();
+
+        if (strArray != null) {
+
+            for (String str : strArray) {
+                String[] args = str.split(":");
+                String numStr = args.length == 1 ? str : args[1];
+
+                try {
+                    Integer.parseInt(numStr);
+                } catch (NumberFormatException e) {
+                    errorList.add(new IntegrityError(400, String.format("Incorrect value '%s' of '%s' param", numStr, param)));
+                }
+            }
+        }
+
+        return errorList;
     }
 
     public List<Order> setOrder(Root<LabWork> from, Join<LabWork, Coordinates> joinCoordinates,
@@ -107,7 +215,6 @@ public class LabWorkFilterConfiguration {
                     predicateList.add(criteriaBuilder.equal(from.get(PARAM_DIFFICULTY), Difficulty.valueOf(diffStr)));
                 }
             }
-
         }
 
         if (creationDateStrArray != null) {

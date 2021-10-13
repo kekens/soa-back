@@ -58,15 +58,8 @@ public class LabWorkServiceImpl implements LabWorkService {
 
     @Override
     public List<LabWork> findAllLabWorks(LabWorkFilterConfiguration labWorkFilterConfiguration) throws IncorrectDataException {
-        List<IntegrityError> errorList = new ArrayList<>();
 
-        if (labWorkFilterConfiguration.pageSize < 1) {
-            errorList.add(new IntegrityError(400, "Incorrect value of count of rows per page"));
-        }
-
-        if (labWorkFilterConfiguration.pageIndex < 1) {
-            errorList.add(new IntegrityError(400, "Incorrect value of page index"));
-        }
+        List<IntegrityError> errorList = new ArrayList<>(labWorkFilterConfiguration.validateFilterConfiguration());
 
         if (errorList.size() > 0) {
             throw new IncorrectDataException(errorList);
