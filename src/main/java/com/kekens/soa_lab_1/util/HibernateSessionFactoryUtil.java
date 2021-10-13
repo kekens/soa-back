@@ -23,7 +23,6 @@ public class HibernateSessionFactoryUtil {
                 configuration.setProperty(Environment.PASS, System.getenv("DB_PASSWORD"));
                 StandardServiceRegistryBuilder builder = new StandardServiceRegistryBuilder().applySettings(configuration.getProperties());
                 sessionFactory = configuration.buildSessionFactory(builder.build());
-
             } catch (Exception e) {
                 System.out.println("Исключение!" + e);
             }

@@ -11,7 +11,7 @@ public class CoordinatesValidator {
         List<IntegrityError> errorList = new ArrayList<>();
 
         if (coordinates.getY() <= -895) {
-            errorList.add(new IntegrityError(200, "Y coordinate must be more than -895"));
+            errorList.add(new IntegrityError(400, "Y coordinate must be more than -895"));
         }
 
         return errorList;

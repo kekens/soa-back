@@ -11,7 +11,7 @@ public class DisciplineValidator {
         List<IntegrityError> errorList = new ArrayList<>();
 
         if ((discipline.getName() == null) || (discipline.getName().isEmpty())) {
-            errorList.add(new IntegrityError(300, "Discipline name mustn't be empty"));
+            errorList.add(new IntegrityError(400, "Discipline name mustn't be empty"));
         }
 
         return errorList;

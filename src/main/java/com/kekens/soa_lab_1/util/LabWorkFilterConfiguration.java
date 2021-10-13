@@ -49,7 +49,7 @@ public class LabWorkFilterConfiguration {
         this.disciplineNameStrArray = parameterMap.get("disciplineName");
         this.disciplineLectureHoursStrArray = parameterMap.get("disciplineLectureHours");
         this.sortingParams = parameterMap.get("sort");
-        this.pageSize = parameterMap.get("count") == null ? 1000 : Integer.parseInt(parameterMap.get("count")[0]);
+        this.pageSize = parameterMap.get("count") == null ? 30 : Integer.parseInt(parameterMap.get("count")[0]);
         this.pageIndex = parameterMap.get("page") == null ? 1 : Integer.parseInt(parameterMap.get("page")[0]);
     }
 
@@ -105,21 +105,8 @@ public class LabWorkFilterConfiguration {
 
                 if (args.length == 1) {
                     predicateList.add(criteriaBuilder.equal(from.get(PARAM_DIFFICULTY), Difficulty.valueOf(diffStr)));
-                } else {
-                    // TODO Filtering by less and more for Difficulty
-//                    date = LocalDate.parse(args[1], formatter);
-//                    ZonedDateTime zonedDateTime = date.atStartOfDay(ZoneId.systemDefault()).truncatedTo(ChronoUnit.DAYS);
-//                    switch (args[0]) {
-//                        case ">":
-//                            predicateList.add(criteriaBuilder.greaterThanOrEqualTo(from.get(PARAM_CREATION_DATE), zonedDateTime.plusDays(1)));
-//                            break;
-//                        case "<":
-//                            predicateList.add(criteriaBuilder.lessThan(from.get(PARAM_CREATION_DATE), zonedDateTime));
-//                            break;
-//                    }
                 }
             }
-
 
         }
 
