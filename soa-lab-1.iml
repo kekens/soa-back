@@ -22,6 +22,7 @@
         <setting name="validation-enabled" value="true" />
         <setting name="provider-name" value="Hibernate" />
         <datasource-mapping>
+          <factory-entry name="soa-lab-1" value="f3b4450f-e494-4e45-87de-bded8c9d1c0a" />
           <factory-entry name="soa_lab_1" value="0c767897-926f-4b05-8712-9dc6a85af113" />
         </datasource-mapping>
         <naming-strategy-map />

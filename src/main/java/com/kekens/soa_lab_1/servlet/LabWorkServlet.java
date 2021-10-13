@@ -95,7 +95,7 @@ public class LabWorkServlet extends HttpServlet {
 
         String path = request.getPathInfo();
 
-        if ((path != null)) {
+        if (path != null) {
             path = path.replaceAll("/","");
 
             // Update LabWork
