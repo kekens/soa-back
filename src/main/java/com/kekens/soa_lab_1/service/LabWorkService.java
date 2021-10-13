@@ -11,10 +11,10 @@ public interface LabWorkService {
     LabWork findLabWorkById(int id) throws IncorrectDataException;
     void createLabWork(LabWork labWork) throws IncorrectDataException;
     void updateLabWork(LabWork labWork) throws IncorrectDataException;
-    void deleteLabWork(int id) throws IncorrectDataException;
+    void deleteLabWork(LabWork labWork);
     List<LabWork> findAllLabWorks(LabWorkFilterConfiguration labWorkFilterConfiguration);
 
-    void deleteLabWorkByDifficulty(String diff) throws IncorrectDataException;
+    LabWork deleteLabWorkByDifficulty(String diff) throws IncorrectDataException;
     int getCountLabWorkByDifficulty(String diff) throws IncorrectDataException;
     List<LabWork> findAllLabWorkByName(String name);
 }

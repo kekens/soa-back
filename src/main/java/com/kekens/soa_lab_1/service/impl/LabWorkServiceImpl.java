@@ -23,7 +23,7 @@ public class LabWorkServiceImpl implements LabWorkService {
         LabWork labWork = labWorkDao.findById(id);
 
         if (labWork == null) {
-            throw new IncorrectDataException(Collections.singletonList(new IntegrityError(104, "Not found LabWork with that ID: " + id)));
+            throw new IncorrectDataException(Collections.singletonList(new IntegrityError(404, "Not found LabWork with that ID: " + id)));
         } else {
             return labWork;
         }
@@ -44,10 +44,6 @@ public class LabWorkServiceImpl implements LabWorkService {
     public void updateLabWork(LabWork labWork) throws IncorrectDataException {
         List<IntegrityError> errorList = labWorkValidator.validateLabWork(labWork);
 
-        if (findLabWorkById(labWork.getId()) == null) {
-            errorList.add(new IntegrityError(104, "Not found LabWork with that ID"));
-        }
-
         if (errorList.size() > 0) {
             throw new IncorrectDataException(errorList);
         } else {
@@ -56,14 +52,8 @@ public class LabWorkServiceImpl implements LabWorkService {
     }
 
     @Override
-    public void deleteLabWork(int id) throws IncorrectDataException {
-        LabWork labWork = findLabWorkById(id);
-
-        if (labWork == null) {
-            throw new IncorrectDataException(Collections.singletonList(new IntegrityError(104, "Not found LabWork with that ID")));
-        } else {
-            labWorkDao.delete(labWork);
-        }
+    public void deleteLabWork(LabWork labWork) {
+        labWorkDao.delete(labWork);
     }
 
     @Override
@@ -72,23 +62,25 @@ public class LabWorkServiceImpl implements LabWorkService {
     }
 
     @Override
-    public void deleteLabWorkByDifficulty(String diff) throws IncorrectDataException {
+    public LabWork deleteLabWorkByDifficulty(String diff) throws IncorrectDataException {
         Difficulty difficulty;
 
         try {
             difficulty = Difficulty.valueOf(diff);
         } catch (IllegalArgumentException e) {
-            throw new IncorrectDataException(Collections.singletonList(new IntegrityError(103, "Incorrect value of difficulty")));
+            throw new IncorrectDataException(Collections.singletonList(new IntegrityError(400, "Incorrect value of difficulty")));
         }
 
         List<LabWork> listLabWork = labWorkDao.findAll();
 
         for (LabWork labWork : listLabWork) {
             if (labWork.getDifficulty() == difficulty) {
-                deleteLabWork(labWork.getId());
-                break;
+                deleteLabWork(labWork);
+                return labWork;
             }
         }
+
+        return null;
     }
 
     @Override
@@ -99,11 +91,10 @@ public class LabWorkServiceImpl implements LabWorkService {
         try {
             difficulty = Difficulty.valueOf(diff);
         } catch (IllegalArgumentException e) {
-            throw new IncorrectDataException(Collections.singletonList(new IntegrityError(103, "Incorrect value of difficulty")));
+            throw new IncorrectDataException(Collections.singletonList(new IntegrityError(400, "Incorrect value of difficulty")));
         }
 
         List<LabWork> listLabWork = labWorkDao.findAll();
-
 
         for (LabWork labWork : listLabWork) {
             if ((labWork.getDifficulty() != null) && (labWork.getDifficulty().value > difficulty.value)) {
