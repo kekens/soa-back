@@ -60,7 +60,7 @@ public class LabWorkServlet extends HttpServlet {
             List<LabWork> listLabWork = labWorkService.findAllLabWorkByName(request.getParameter("name_substr"));
             sendResponse(response, jsonUtilLabWork.buildJsonStringFromList(listLabWork), HttpServletResponse.SC_OK);
         } else {
-            path = path.replaceAll("/","");
+            path = path.replace("/","");
             try {
                 LabWork labWork = labWorkService.findLabWorkById(Integer.parseInt(path));
                 sendResponse(response,jsonUtilLabWork.buildJsonStringFromObject(labWork), HttpServletResponse.SC_OK);
@@ -96,7 +96,7 @@ public class LabWorkServlet extends HttpServlet {
         String path = request.getPathInfo();
 
         if (path != null) {
-            path = path.replaceAll("/","");
+            path = path.replace("/","");
 
             // Update LabWork
             try {

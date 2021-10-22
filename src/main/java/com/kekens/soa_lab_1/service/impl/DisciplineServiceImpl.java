@@ -30,7 +30,7 @@ public class DisciplineServiceImpl implements DisciplineService {
     public void createDiscipline(Discipline discipline) throws IncorrectDataException {
         List<IntegrityError> errorList = disciplineValidator.validateDiscipline(discipline);
 
-        if (errorList.size() > 0) {
+        if (errorList.isEmpty()) {
             throw new IncorrectDataException(errorList);
         } else {
             disciplineDao.save(discipline);
@@ -41,7 +41,7 @@ public class DisciplineServiceImpl implements DisciplineService {
     public void updateDiscipline(Discipline discipline) throws IncorrectDataException {
         List<IntegrityError> errorList = disciplineValidator.validateDiscipline(discipline);
 
-        if (errorList.size() > 0) {
+        if (errorList.isEmpty()) {
             throw new IncorrectDataException(errorList);
         } else {
             disciplineDao.update(discipline);
