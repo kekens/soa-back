@@ -5,9 +5,9 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.kekens</groupId>
-    <artifactId>soa-back</artifactId>
+    <artifactId>soa-back-1</artifactId>
     <version>1.0-SNAPSHOT</version>
-    <name>soa-back</name>
+    <name>soa-back-1</name>
     <packaging>war</packaging>
 
     <properties>
@@ -81,19 +81,9 @@
         <finalName>${project.artifactId}</finalName>
         <plugins>
             <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-war-plugin</artifactId>
                 <version>3.3.1</version>
-                <configuration>
-                    <failOnMissingWebXml>false</failOnMissingWebXml>
-
-                    <!-- Add frontend folder to war package -->
-                    <webResources>
-                        <resource>
-                            <directory>../soa-front/dist/soa-front</directory>
-                        </resource>
-                    </webResources>
-
-                </configuration>
             </plugin>
         </plugins>
     </build>
