@@ -1,8 +1,8 @@
-package com.kekens.soa_lab_1.validator;
+package com.kekens.soa_back.validator;
 
-import com.kekens.soa_lab_1.dao.DisciplineDao;
-import com.kekens.soa_lab_1.model.Discipline;
-import com.kekens.soa_lab_1.model.LabWork;
+import com.kekens.soa_back.dao.DisciplineDao;
+import com.kekens.soa_back.model.Discipline;
+import com.kekens.soa_back.model.LabWork;
 
 import java.util.ArrayList;
 import java.util.List;

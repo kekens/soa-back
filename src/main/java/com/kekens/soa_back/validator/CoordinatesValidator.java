@@ -1,6 +1,6 @@
-package com.kekens.soa_lab_1.validator;
+package com.kekens.soa_back.validator;
 
-import com.kekens.soa_lab_1.model.Coordinates;
+import com.kekens.soa_back.model.Coordinates;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -1,4 +1,4 @@
-package com.kekens.soa_lab_1.validator;
+package com.kekens.soa_back.validator;
 
 public class IntegrityError {
     private final int code;

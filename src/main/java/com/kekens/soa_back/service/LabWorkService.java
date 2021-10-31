@@ -1,8 +1,8 @@
-package com.kekens.soa_lab_1.service;
+package com.kekens.soa_back.service;
 
-import com.kekens.soa_lab_1.model.LabWork;
-import com.kekens.soa_lab_1.util.LabWorkFilterConfiguration;
-import com.kekens.soa_lab_1.validator.exception.IncorrectDataException;
+import com.kekens.soa_back.model.LabWork;
+import com.kekens.soa_back.util.LabWorkFilterConfiguration;
+import com.kekens.soa_back.validator.exception.IncorrectDataException;
 
 import java.util.List;
 

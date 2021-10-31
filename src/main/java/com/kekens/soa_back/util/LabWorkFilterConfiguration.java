@@ -1,10 +1,10 @@
-package com.kekens.soa_lab_1.util;
+package com.kekens.soa_back.util;
 
-import com.kekens.soa_lab_1.model.Coordinates;
-import com.kekens.soa_lab_1.model.Difficulty;
-import com.kekens.soa_lab_1.model.Discipline;
-import com.kekens.soa_lab_1.model.LabWork;
-import com.kekens.soa_lab_1.validator.IntegrityError;
+import com.kekens.soa_back.model.Coordinates;
+import com.kekens.soa_back.model.Difficulty;
+import com.kekens.soa_back.model.Discipline;
+import com.kekens.soa_back.model.LabWork;
+import com.kekens.soa_back.validator.IntegrityError;
 
 import javax.persistence.criteria.*;
 import java.time.LocalDate;
@@ -254,9 +254,9 @@ public class LabWorkFilterConfiguration {
     }
 
     private <T extends From<?,?>> void addNumberPredicates(T object, CriteriaBuilder criteriaBuilder, List<Predicate> predicateList,
-                                         String[] strArray, String param) {
-        if (strArray != null) {
-            for (String numStr : strArray) {
+                                         String[] numArray, String param) {
+        if (numArray != null) {
+            for (String numStr : numArray) {
                 String[] args = numStr.split(":");
 
                 Long num;

@@ -1,10 +1,10 @@
-package com.kekens.soa_lab_1.util;
+package com.kekens.soa_back.util;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.kekens.soa_lab_1.validator.IntegrityError;
-import com.kekens.soa_lab_1.validator.exception.IncorrectDataException;
+import com.kekens.soa_back.validator.IntegrityError;
+import com.kekens.soa_back.validator.exception.IncorrectDataException;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.BufferedReader;

@@ -1,4 +1,4 @@
-package com.kekens.soa_lab_1.model;
+package com.kekens.soa_back.model;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.AllArgsConstructor;

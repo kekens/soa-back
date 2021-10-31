@@ -1,4 +1,4 @@
-package com.kekens.soa_lab_1.model;
+package com.kekens.soa_back.model;
 
 public enum Difficulty {
     VERY_EASY(0),

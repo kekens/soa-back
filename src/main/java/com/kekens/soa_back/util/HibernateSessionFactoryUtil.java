@@ -1,7 +1,7 @@
-package com.kekens.soa_lab_1.util;
+package com.kekens.soa_back.util;
 
-import com.kekens.soa_lab_1.model.Discipline;
-import com.kekens.soa_lab_1.model.LabWork;
+import com.kekens.soa_back.model.Discipline;
+import com.kekens.soa_back.model.LabWork;
 import org.hibernate.SessionFactory;
 import org.hibernate.boot.registry.StandardServiceRegistryBuilder;
 import org.hibernate.cfg.Configuration;

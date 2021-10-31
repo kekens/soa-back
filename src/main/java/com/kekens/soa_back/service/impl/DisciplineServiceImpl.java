@@ -1,11 +1,11 @@
-package com.kekens.soa_lab_1.service.impl;
+package com.kekens.soa_back.service.impl;
 
-import com.kekens.soa_lab_1.dao.DisciplineDao;
-import com.kekens.soa_lab_1.model.Discipline;
-import com.kekens.soa_lab_1.service.DisciplineService;
-import com.kekens.soa_lab_1.validator.DisciplineValidator;
-import com.kekens.soa_lab_1.validator.IntegrityError;
-import com.kekens.soa_lab_1.validator.exception.IncorrectDataException;
+import com.kekens.soa_back.dao.DisciplineDao;
+import com.kekens.soa_back.model.Discipline;
+import com.kekens.soa_back.service.DisciplineService;
+import com.kekens.soa_back.validator.DisciplineValidator;
+import com.kekens.soa_back.validator.IntegrityError;
+import com.kekens.soa_back.validator.exception.IncorrectDataException;
 
 import java.util.Collections;
 import java.util.List;

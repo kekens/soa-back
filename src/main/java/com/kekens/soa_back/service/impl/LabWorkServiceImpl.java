@@ -1,13 +1,13 @@
-package com.kekens.soa_lab_1.service.impl;
+package com.kekens.soa_back.service.impl;
 
-import com.kekens.soa_lab_1.dao.LabWorkDao;
-import com.kekens.soa_lab_1.model.Difficulty;
-import com.kekens.soa_lab_1.model.LabWork;
-import com.kekens.soa_lab_1.service.LabWorkService;
-import com.kekens.soa_lab_1.util.LabWorkFilterConfiguration;
-import com.kekens.soa_lab_1.validator.IntegrityError;
-import com.kekens.soa_lab_1.validator.LabWorkValidator;
-import com.kekens.soa_lab_1.validator.exception.IncorrectDataException;
+import com.kekens.soa_back.dao.LabWorkDao;
+import com.kekens.soa_back.model.Difficulty;
+import com.kekens.soa_back.model.LabWork;
+import com.kekens.soa_back.service.LabWorkService;
+import com.kekens.soa_back.util.LabWorkFilterConfiguration;
+import com.kekens.soa_back.validator.IntegrityError;
+import com.kekens.soa_back.validator.LabWorkValidator;
+import com.kekens.soa_back.validator.exception.IncorrectDataException;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -74,7 +74,7 @@ public class LabWorkServiceImpl implements LabWorkService {
 
         try {
             difficulty = Difficulty.valueOf(diff);
-        } catch (IllegalArgumentException e) {
+        } catch (IllegalArgumentException | NullPointerException e) {
             throw new IncorrectDataException(Collections.singletonList(new IntegrityError(400, "Incorrect value of difficulty")));
         }
 

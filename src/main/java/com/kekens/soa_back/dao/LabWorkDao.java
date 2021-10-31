@@ -1,10 +1,10 @@
-package com.kekens.soa_lab_1.dao;
+package com.kekens.soa_back.dao;
 
-import com.kekens.soa_lab_1.model.Coordinates;
-import com.kekens.soa_lab_1.model.Discipline;
-import com.kekens.soa_lab_1.model.LabWork;
-import com.kekens.soa_lab_1.util.LabWorkFilterConfiguration;
-import com.kekens.soa_lab_1.util.HibernateSessionFactoryUtil;
+import com.kekens.soa_back.model.Coordinates;
+import com.kekens.soa_back.model.Discipline;
+import com.kekens.soa_back.model.LabWork;
+import com.kekens.soa_back.util.LabWorkFilterConfiguration;
+import com.kekens.soa_back.util.HibernateSessionFactoryUtil;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 

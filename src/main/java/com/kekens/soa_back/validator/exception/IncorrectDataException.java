@@ -1,6 +1,6 @@
-package com.kekens.soa_lab_1.validator.exception;
+package com.kekens.soa_back.validator.exception;
 
-import com.kekens.soa_lab_1.validator.IntegrityError;
+import com.kekens.soa_back.validator.IntegrityError;
 
 import java.util.List;
 

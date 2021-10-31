@@ -1,7 +1,7 @@
-package com.kekens.soa_lab_1.service;
+package com.kekens.soa_back.service;
 
-import com.kekens.soa_lab_1.model.Discipline;
-import com.kekens.soa_lab_1.validator.exception.IncorrectDataException;
+import com.kekens.soa_back.model.Discipline;
+import com.kekens.soa_back.validator.exception.IncorrectDataException;
 
 import java.util.List;
 
