@@ -1,6 +1,7 @@
 package com.kekens.soa_back_2.service.impl;
 
 import com.kekens.soa_back_2.model.Difficulty;
+import com.kekens.soa_back_2.model.Discipline;
 import com.kekens.soa_back_2.model.LabWork;
 import com.kekens.soa_back_2.service.BarsService;
 import com.kekens.soa_back_2.validator.IntegrityError;
@@ -20,7 +21,9 @@ public class BarsServiceImpl implements BarsService {
 
     @Override
     public void decreaseDifficulty(int labworkId, int stepCount) throws IncorrectDataException {
-        Response responseLab = getTarget().path("labworks").path(String.valueOf(labworkId)).request()
+        WebTarget target = getTarget();
+
+        Response responseLab = target.path("labworks").path(String.valueOf(labworkId)).request()
                 .accept(MediaType.APPLICATION_JSON).get();
 
         if (responseLab.getStatus() == Response.Status.NOT_FOUND.getStatusCode()) {
@@ -45,8 +48,36 @@ public class BarsServiceImpl implements BarsService {
 
         labWork.setDifficulty(difficulty);
         labWork.setCreationDate(null);
-        getTarget().path("labworks").path(String.valueOf(labworkId)).request()
+        target.path("labworks").path(String.valueOf(labworkId)).request()
                 .accept(MediaType.APPLICATION_JSON).put(Entity.entity(labWork, MediaType.APPLICATION_JSON));
+    }
+
+    @Override
+    public void deleteLabWorkFromDiscipline(int disciplineId, int labworkId) throws IncorrectDataException {
+        WebTarget target = getTarget();
+
+        Response responseDiscipline = target.path("disciplines").path(String.valueOf(disciplineId)).request()
+                .accept(MediaType.APPLICATION_JSON).get();
+
+        Response responseLab = target.path("labworks").path(String.valueOf(labworkId)).request()
+                .accept(MediaType.APPLICATION_JSON).get();
+
+        if (responseDiscipline.getStatus() == Response.Status.NOT_FOUND.getStatusCode()) {
+            throw new IncorrectDataException(Collections.singletonList(new IntegrityError(404, "Resource 'Discipline' not found")));
+        }
+
+        if (responseLab.getStatus() == Response.Status.NOT_FOUND.getStatusCode()) {
+            throw new IncorrectDataException(Collections.singletonList(new IntegrityError(404, "Resource 'LabWork' not found")));
+        }
+
+        Discipline discipline = responseDiscipline.readEntity(Discipline.class);
+        LabWork labWork = responseLab.readEntity(LabWork.class);
+
+        if (discipline.getId() != labWork.getDiscipline().getId()) {
+            throw new IncorrectDataException(Collections.singletonList(new IntegrityError(404, "LabWork isn't in discipline's programme")));
+        }
+
+        target.path("labworks").path(String.valueOf(labworkId)).request().delete();
     }
 
     private WebTarget getTarget() {

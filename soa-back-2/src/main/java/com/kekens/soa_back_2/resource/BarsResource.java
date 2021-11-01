@@ -43,7 +43,20 @@ public class BarsResource {
     public Response deleteLabWorkFromDiscipline(@PathParam("discipline-id") String disciplineId,
                                                 @PathParam("labwork-id") String labWorkId)
     {
-        return Response.status(Response.Status.OK).build();
+        try {
+            this.barsServiceImpl.deleteLabWorkFromDiscipline(Integer.parseInt(disciplineId), Integer.parseInt(labWorkId));
+            return Response.status(Response.Status.NO_CONTENT).build();
+        } catch (IncorrectDataException e) {
+            Response.Status status;
+            if (e.getErrorList().stream().map(IntegrityError::getCode).collect(Collectors.toList()).contains(404)) {
+                status = Response.Status.NOT_FOUND;
+            } else {
+                status = Response.Status.BAD_REQUEST;
+            }
+            return Response.status(status).entity(e.getErrorList()).build();
+        } catch (NumberFormatException e) {
+            return Response.status(Response.Status.BAD_REQUEST).entity(new IntegrityError(400, "Incorrect parameter")).build();
+        }
     }
 
 }
