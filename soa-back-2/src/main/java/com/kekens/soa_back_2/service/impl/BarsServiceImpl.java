@@ -13,7 +13,9 @@ import javax.ws.rs.client.Entity;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 
 public class BarsServiceImpl implements BarsService {
 
@@ -21,6 +23,20 @@ public class BarsServiceImpl implements BarsService {
 
     @Override
     public void decreaseDifficulty(int labworkId, int stepCount) throws IncorrectDataException {
+        List<IntegrityError> errorList = new ArrayList<>();
+
+        if (labworkId <= 0) {
+            errorList.add(new IntegrityError(400, "Incorrect value of lab id"));
+        }
+
+        if (stepCount <= 0) {
+            errorList.add(new IntegrityError(400, "Incorrect value of step count"));
+        }
+
+        if (!errorList.isEmpty()) {
+            throw new IncorrectDataException(errorList);
+        }
+
         WebTarget target = getTarget();
 
         Response responseLab = target.path("labworks").path(String.valueOf(labworkId)).request()
@@ -54,6 +70,20 @@ public class BarsServiceImpl implements BarsService {
 
     @Override
     public void deleteLabWorkFromDiscipline(int disciplineId, int labworkId) throws IncorrectDataException {
+        List<IntegrityError> errorList = new ArrayList<>();
+
+        if (disciplineId <= 0) {
+            errorList.add(new IntegrityError(400, "Incorrect value of lab id"));
+        }
+
+        if (labworkId <= 0) {
+            errorList.add(new IntegrityError(400, "Incorrect value of step count"));
+        }
+
+        if (!errorList.isEmpty()) {
+            throw new IncorrectDataException(errorList);
+        }
+
         WebTarget target = getTarget();
 
         Response responseDiscipline = target.path("disciplines").path(String.valueOf(disciplineId)).request()
