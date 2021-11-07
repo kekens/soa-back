@@ -7,19 +7,29 @@ import com.kekens.soa_back_2.service.BarsService;
 import com.kekens.soa_back_2.validator.IntegrityError;
 import com.kekens.soa_back_2.validator.exception.IncorrectDataException;
 
+import javax.net.ssl.HostnameVerifier;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLSession;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.Entity;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.security.KeyStore;
+import java.security.KeyStoreException;
+import java.security.NoSuchAlgorithmException;
+import java.security.cert.CertificateException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
 public class BarsServiceImpl implements BarsService {
 
-    private static final String BACK_2_URI = "http://localhost:1111/soa-back-1";
+    private static final String BACK_2_URI = "https://localhost:18443/soa-back-1";
 
     @Override
     public void decreaseDifficulty(int labworkId, int stepCount) throws IncorrectDataException {
@@ -111,7 +121,21 @@ public class BarsServiceImpl implements BarsService {
     }
 
     private WebTarget getTarget() {
-        Client client = ClientBuilder.newClient();
-        return client.target(BACK_2_URI);
+        try {
+            ClientBuilder clientBuilder = ClientBuilder.newBuilder();
+            clientBuilder.sslContext(SSLContext.getDefault());
+            KeyStore trustStore = KeyStore.getInstance("JKS");
+            FileInputStream fin = new FileInputStream("/home/kirill/payara/payara.truststore");
+            trustStore.load(fin, System.getenv("TRUSTSTORE_PASSWORD").toCharArray());
+            clientBuilder.trustStore(trustStore);
+            clientBuilder.hostnameVerifier((s, sslSession) -> s.equals("localhost"));
+            Client client = clientBuilder.build();
+            return client.target(BACK_2_URI);
+        } catch (IOException e) {
+            System.out.println("Can't find truststore file");
+        } catch (Exception e) {
+            System.out.println("Can't setup SSL");
+        }
+        return ClientBuilder.newClient().target(BACK_2_URI);
     }
 }
