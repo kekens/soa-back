@@ -17,7 +17,7 @@ public class BarsResource {
 
     private final BarsService barsServiceImpl = new BarsServiceImpl();
 
-    @GET
+    @POST
     @Path("/labwork/{labwork-id}/difficulty/decrease/{steps-count}")
     public Response decreaseLabWorkDifficulty(@PathParam("labwork-id") String id,
                                               @PathParam("steps-count") String stepCount)
