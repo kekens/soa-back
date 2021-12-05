@@ -123,7 +123,7 @@ public class BarsServiceImpl implements BarsService {
     }
 
     private WebTarget getTarget() {
-        String BACK_2_URI=isSecure ? System.getenv("HTTPS_URI") : System.getenv("HTTP_URI");
+        String BACK_2_URI = isSecure ? System.getenv("HTTPS_URI") : System.getenv("HTTP_URI");
 
         if (isSecure) {
             try {
