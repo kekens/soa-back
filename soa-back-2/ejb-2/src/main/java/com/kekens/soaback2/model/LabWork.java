@@ -1,5 +1,8 @@
 package com.kekens.soaback2.model;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -18,7 +21,8 @@ public class LabWork implements Serializable {
 
     private Coordinates coordinates; //Поле не может быть null
 
-    @JsonbDateFormat(value = "dd-MM-yyyy HH:mm")
+//    @JsonbDateFormat(value = "dd-MM-yyyy HH:mm")
+    @JsonIgnore
     private java.time.ZonedDateTime creationDate; //Поле не может быть null, Значение этого поля должно генерироваться автоматически
 
     private Integer minimalPoint; //Поле может быть null, Значение поля должно быть больше 0

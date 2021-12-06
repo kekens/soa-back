@@ -4,9 +4,9 @@ import com.kekens.soaback2.model.Difficulty;
 import com.kekens.soaback2.model.Discipline;
 import com.kekens.soaback2.model.LabWork;
 import com.kekens.soaback2.service.BarsService;
+import com.kekens.soaback2.util.ServiceDiscoveryConfiguration;
 import com.kekens.soaback2.validator.IntegrityError;
 import com.kekens.soaback2.validator.exception.IncorrectDataException;
-import org.jboss.resteasy.plugins.providers.jackson.ResteasyJackson2Provider;
 
 import javax.ejb.Remote;
 import javax.ejb.Stateless;
@@ -17,7 +17,6 @@ import javax.ws.rs.client.Entity;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.security.KeyStore;
@@ -128,8 +127,26 @@ public class BarsServiceImpl implements BarsService {
         target.path("labworks").path(String.valueOf(labworkId)).request().delete();
     }
 
-    private WebTarget getTarget() {
-        String BACK_2_URI = isSecure ? System.getenv("HTTPS_URI") : System.getenv("HTTP_URI");
+    private WebTarget getTarget() throws IncorrectDataException {
+        String consulUrl = "http://localhost:8500";
+
+        Client clientConsul = ClientBuilder.newClient();
+        Response responseConsul = clientConsul.target(consulUrl).path("v1").path("agent").path("service").path("soa1").request()
+                .accept(MediaType.APPLICATION_JSON).get();
+
+        if (responseConsul.getStatus() == Response.Status.NOT_FOUND.getStatusCode()) {
+            throw new IncorrectDataException(Collections.singletonList(new IntegrityError(404, "Service soa1 not found")));
+        }
+
+        ServiceDiscoveryConfiguration serviceDiscoveryConfiguration = responseConsul.readEntity(ServiceDiscoveryConfiguration.class);
+
+        System.out.println("-----------");
+        System.out.println(serviceDiscoveryConfiguration.getAddress());
+        System.out.println(serviceDiscoveryConfiguration.getName());
+        System.out.println(serviceDiscoveryConfiguration.getPort());
+        System.out.println("-----------");
+
+        String BACK_2_URI = serviceDiscoveryConfiguration.getAddress() + ":" + serviceDiscoveryConfiguration.getPort() + "/" + serviceDiscoveryConfiguration.getName();
 
         if (isSecure) {
             try {
