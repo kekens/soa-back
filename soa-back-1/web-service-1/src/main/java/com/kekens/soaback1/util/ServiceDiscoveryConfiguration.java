@@ -1,6 +1,5 @@
 package com.kekens.soaback1.util;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 
 @Data
@@ -13,5 +12,7 @@ public class ServiceDiscoveryConfiguration {
     private String address;
 
     private int port;
+
+    private CheckServiceConfiguration check;
 
 }

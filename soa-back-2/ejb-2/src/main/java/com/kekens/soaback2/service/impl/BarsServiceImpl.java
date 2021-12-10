@@ -128,23 +128,26 @@ public class BarsServiceImpl implements BarsService {
     }
 
     private WebTarget getTarget() throws IncorrectDataException {
-        String consulUrl = "http://localhost:8500";
-
+        String consulUrl = System.getenv("CONSUL_URL");
         Client clientConsul = ClientBuilder.newClient();
-        Response responseConsul = clientConsul.target(consulUrl).path("v1").path("agent").path("service").path("soa1").request()
-                .accept(MediaType.APPLICATION_JSON).get();
 
-        if (responseConsul.getStatus() == Response.Status.NOT_FOUND.getStatusCode()) {
+        Response responseCheckService = clientConsul.target(consulUrl).path("v1").path("agent").path("health")
+                .path("service").path("id").path(System.getenv("CONSUL_SERVICE_1_ID"))
+                .request().accept(MediaType.APPLICATION_JSON).get();
+
+
+        if (responseCheckService.getStatus() == Response.Status.NOT_FOUND.getStatusCode()) {
             throw new IncorrectDataException(Collections.singletonList(new IntegrityError(404, "Service soa1 not found")));
         }
 
-        ServiceDiscoveryConfiguration serviceDiscoveryConfiguration = responseConsul.readEntity(ServiceDiscoveryConfiguration.class);
+        if (responseCheckService.getStatus() == Response.Status.SERVICE_UNAVAILABLE.getStatusCode()) {
+            throw new IncorrectDataException(Collections.singletonList(new IntegrityError(503, "Service soa1 isn't available")));
+        }
 
-        System.out.println("-----------");
-        System.out.println(serviceDiscoveryConfiguration.getAddress());
-        System.out.println(serviceDiscoveryConfiguration.getName());
-        System.out.println(serviceDiscoveryConfiguration.getPort());
-        System.out.println("-----------");
+        Response responseConsul = clientConsul.target(consulUrl).path("v1").path("agent").path("service").path(System.getenv("CONSUL_SERVICE_1_ID"))
+                .request().accept(MediaType.APPLICATION_JSON).get();
+
+        ServiceDiscoveryConfiguration serviceDiscoveryConfiguration = responseConsul.readEntity(ServiceDiscoveryConfiguration.class);
 
         String BACK_2_URI = serviceDiscoveryConfiguration.getAddress() + ":" + serviceDiscoveryConfiguration.getPort() + "/" + serviceDiscoveryConfiguration.getName();
 

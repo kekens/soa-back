@@ -19,7 +19,11 @@ import java.util.stream.Collectors;
 @Consumes(MediaType.APPLICATION_JSON)
 public class LabWorkResource {
 
-    private final LabWorkService labWorkService = RemoteBeanLookupUtil.lookupLabWorkBean();
+    private final LabWorkService labWorkService;
+
+    public LabWorkResource() throws IncorrectDataException {
+        this.labWorkService = RemoteBeanLookupUtil.lookupLabWorkBean();
+    }
 
     @GET
     public Response getAllLabWorks(@Context UriInfo uriInfo)  {

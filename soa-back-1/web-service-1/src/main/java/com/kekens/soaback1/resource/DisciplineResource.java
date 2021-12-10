@@ -17,7 +17,11 @@ import java.util.stream.Collectors;
 @Consumes(MediaType.APPLICATION_JSON)
 public class DisciplineResource {
 
-    private final DisciplineService disciplineService = RemoteBeanLookupUtil.lookupDisciplineBean();
+    private final DisciplineService disciplineService;
+
+    public DisciplineResource() throws IncorrectDataException {
+        this.disciplineService = RemoteBeanLookupUtil.lookupDisciplineBean();
+    }
 
     @GET
     public Response getAllDisciplines() {

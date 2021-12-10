@@ -15,7 +15,11 @@ import java.util.stream.Collectors;
 @Consumes(MediaType.APPLICATION_JSON)
 public class BarsResource {
 
-    private final BarsService barsServiceImpl = RemoteBeanLookupUtil.lookupBarsBean();
+    private final BarsService barsServiceImpl;
+
+    public BarsResource() throws IncorrectDataException {
+        this.barsServiceImpl = RemoteBeanLookupUtil.lookupBarsBean();
+    }
 
     @POST
     @Path("/labwork/{labwork-id}/difficulty/decrease/{steps-count}")
