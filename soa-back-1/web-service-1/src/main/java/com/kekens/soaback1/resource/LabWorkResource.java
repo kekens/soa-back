@@ -28,8 +28,9 @@ public class LabWorkResource {
     @GET
     public Response getAllLabWorks(@Context UriInfo uriInfo)  {
         try {
-            LabWorkFilterConfiguration labWorkFilterConfiguration = parseFilterRequest(uriInfo.getQueryParameters());
-            List<LabWork> listLabWork = labWorkService.findAllLabWorks(labWorkFilterConfiguration);
+//            LabWorkFilterConfiguration labWorkFilterConfiguration = parseFilterRequest(uriInfo.getQueryParameters());
+//            List<LabWork> listLabWork = labWorkService.findAllLabWorks(labWorkFilterConfiguration);
+            List<LabWork> listLabWork = labWorkService.findAllLabWorks(new LabWorkFilterConfiguration());
 
             return Response.status(Response.Status.OK).entity(listLabWork).build();
         } catch (IncorrectDataException e) {
@@ -74,9 +75,6 @@ public class LabWorkResource {
     @Path("/{id}")
     public Response updateLabWork(@PathParam("id") String id, LabWork labWork) {
         try {
-            System.out.println("\n\n");
-            System.out.println(labWork);
-            System.out.println("\n\n");
             labWork.setId(labWorkService.findLabWorkById(Integer.parseInt(id)).getId());
             labWorkService.updateLabWork(labWork);
 
@@ -127,9 +125,9 @@ public class LabWorkResource {
         }
     }
 
-    private LabWorkFilterConfiguration parseFilterRequest(MultivaluedMap<String, String> params) {
-        Map<String, String[]> result = new HashMap<>();
-        params.forEach((key, value) -> result.put(key.toLowerCase(), value.toArray(new String[0])));
-        return new LabWorkFilterConfiguration(result);
-    }
+//    private LabWorkFilterConfiguration parseFilterRequest(MultivaluedMap<String, String> params) {
+//        Map<String, String[]> result = new HashMap<>();
+//        params.forEach((key, value) -> result.put(key.toLowerCase(), value.toArray(new String[0])));
+//        return new LabWorkFilterConfiguration(result);
+//    }
 }

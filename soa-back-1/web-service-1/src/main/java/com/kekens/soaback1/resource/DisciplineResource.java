@@ -5,6 +5,7 @@ import com.kekens.soaback1.service.DisciplineService;
 import com.kekens.soaback1.validator.exception.IncorrectDataException;
 import com.kekens.soaback1.validator.IntegrityError;
 import com.kekens.soaback1.util.RemoteBeanLookupUtil;
+import org.apache.http.HttpException;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;

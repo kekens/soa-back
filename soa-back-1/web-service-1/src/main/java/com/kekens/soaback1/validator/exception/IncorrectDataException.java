@@ -16,4 +16,10 @@ public class IncorrectDataException extends Exception {
         return errorList;
     }
 
+    @Override
+    public String toString() {
+        StringBuilder errorString = new StringBuilder();
+        errorList.forEach(errorString::append);
+        return errorString.toString();
+    }
 }
