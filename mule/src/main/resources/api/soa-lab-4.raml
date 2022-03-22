@@ -1,0 +1,257 @@
+#%RAML 1.0
+title: SOA-LAB-4
+mediaType:
+  - application/xml
+protocols:
+  - HTTP
+  - HTTPS
+baseUri: /
+version: "2.0"
+/labworks:
+  get:
+    displayName: Get labworks
+    responses:
+      "200":
+        body:
+          type: object
+      "400":
+        body:
+          type: object
+    securedBy: []
+    queryParameters:
+      name?:
+        items:
+          example: Example
+          type: string
+      coordinates_x?:
+        items:
+          example: "1"
+          type: string
+      coordinates_y?:
+        items:
+          example: "1"
+          type: string
+      creationDate?:
+        items:
+          example: Example
+          type: string
+      minimalPoint?:
+        items:
+          example: Example
+          type: string
+      difficulty?:
+        items:
+          example: Example
+          type: string
+      disciplineName?:
+        items:
+          example: Example
+          type: string
+      diciplineLectureHours?:
+        items:
+          example: Example
+          type: string
+      sort?:
+        items:
+          example: Example
+          type: string
+      count?:
+        items:
+          example: Example
+          type: string
+      page?:
+        items:
+          example: Example
+          type: string
+  post:
+    displayName: Add labwork
+    responses:
+      "200":
+        body:
+          type: object
+      "400":
+        body:
+          type: object
+    securedBy: []
+    body:
+      type: labwork
+  /difficulty:
+    delete:
+      displayName: Delete labwork by difficulty
+      responses:
+        "200":
+          body:
+            type: object
+        "404":
+          body:
+            type: object          
+      securedBy: []
+      queryParameters:
+        difficulty:
+          example: "NORMAL"
+          type: string    
+  /difficulty/count:
+    get:
+      displayName: Get count of labworks by difficulty
+      queryParameters:
+        difficulty:
+          example: Example
+          type: string
+      responses:
+        "200":
+          body:
+            type: string
+        "404":
+          body:
+            type: object          
+      securedBy: []
+  /{id}:
+    get:
+      displayName: Get labwork
+      responses:
+        "200":
+          body:
+            type: object
+        "404":
+          body:
+            type: object        
+      securedBy: []
+    put:
+      displayName: Update labwork
+      responses:
+        "200":
+          body:
+            type: object
+        "400":
+          body:
+            type: object        
+        "404":
+          body:
+            type: object        
+      securedBy: []
+      body:
+        type: labwork
+    delete:
+      displayName: Delete labwork
+      responses:
+        "204": {}
+        "400":
+          body:
+            type: object
+        "404":
+          body:
+            type: object                
+      securedBy: []
+    uriParameters:
+      id:
+        example: "1"
+        type: string
+/disciplines:
+  get:
+    displayName: Get disciplines
+    responses:
+      "200":
+        body:
+          type: object
+    securedBy: []
+  post:
+    displayName: Add discipline
+    responses:
+      "200":
+        body:
+          type: object
+      "400":
+        body:
+          type: object
+    securedBy: []
+    body:
+      type: discipline   
+  /{id}:
+    get:
+      displayName: Get discipline
+      responses:
+        "200":
+          body:
+            type: object
+        "404":
+          body:
+            type: object        
+      securedBy: []
+    put:
+      displayName: Update discipline
+      responses:
+        "200":
+          body:
+            type: object
+        "400":
+          body:
+            type: object        
+        "404":
+          body:
+            type: object        
+      securedBy: []
+      body:
+        type: discipline
+    delete:
+      displayName: Delete discipline
+      responses:
+        "204": {}
+        "400":
+          body:
+            type: object
+        "404":
+          body:
+            type: object                
+      securedBy: []
+    uriParameters:
+      id:
+        example: "1"
+        type: string       
+
+types:
+  discipline:
+    properties:
+      id?:
+        example: 1
+        type: number
+        format: int
+      name?:
+        example: Example
+        type: string
+      lectureHours?:
+        type: number
+        format: long
+        example: 24
+  labwork:
+    properties:
+      id?:
+        example: 1
+        type: number
+        format: int
+      name?:
+        example: name
+        type: string
+      coordinates?:
+        type: coordinates
+      creationDate?:
+        example: 2022-12-12
+        type: string
+      minimalPoint?:
+        example: 1
+        type: number
+        format: int
+      difficulty?:
+        type: string
+        example: NORMAL
+      discipline?:
+        type: discipline
+  coordinates:
+    properties:
+      x:
+        example: 1
+        type: number
+        format: long
+      y:
+        example: 1
+        type: number
+        format: int

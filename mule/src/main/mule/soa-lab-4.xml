@@ -1,0 +1,620 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mule xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:apikit="http://www.mulesoft.org/schema/mule/mule-apikit" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:tls="http://www.mulesoft.org/schema/mule/tls" xmlns:wsc="http://www.mulesoft.org/schema/mule/wsc" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd http://www.mulesoft.org/schema/mule/mule-apikit http://www.mulesoft.org/schema/mule/mule-apikit/current/mule-apikit.xsd http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd  http://www.mulesoft.org/schema/mule/tls http://www.mulesoft.org/schema/mule/tls/current/mule-tls.xsd http://www.mulesoft.org/schema/mule/wsc http://www.mulesoft.org/schema/mule/wsc/current/mule-wsc.xsd">
+    <http:listener-config name="soa-lab-4-httpListenerConfig">
+        <http:listener-connection host="localhost" port="21111" />
+    </http:listener-config>
+    <apikit:config name="soa-lab-4-config" api="soa-lab-4.raml" outboundHeadersMapName="outboundHeaders" httpStatusVarName="httpStatus" />
+    <wsc:config name="Web_Service_Consumer_Config_LabWork" doc:name="Web Service Consumer Config" doc:id="6d5acea2-1f7b-4e59-b216-d746e45a52da">
+        <wsc:connection wsdlLocation="http://localhost:1111/soa-back-1/SoapLabWorkServiceImpl?wsdl" service="SoapLabWorkServiceImplService" port="SoapLabWorkServiceImplPort" address="http://localhost:1111/soa-back-1/SoapLabWorkServiceImpl">
+            <wsc:web-service-security actor="http://schemas.xmlsoap.org/soap/actor/next" />
+        </wsc:connection>
+    </wsc:config>
+    <wsc:config name="Web_Service_Consumer_Config_Disciplinee" doc:name="Web Service Consumer Config" doc:id="d6ff1712-3be3-4f51-9a12-ce853e0eea2a">
+        <wsc:connection wsdlLocation="http://localhost:1111/soa-back-1/SoapDisciplineServiceImpl?wsdl" service="SoapDisciplineServiceImplService" port="SoapDisciplineServiceImplPort" address="http://localhost:1111/soa-back-1/SoapDisciplineServiceImpl" />
+    </wsc:config>
+    <flow name="soa-lab-4-main">
+        <http:listener config-ref="soa-lab-4-httpListenerConfig" path="api/*" allowedMethods="GET, POST, DELETE, PUT, OPTIONS, HEAD">
+            <http:response statusCode="#[vars.httpStatus default 200]">
+                <http:headers><![CDATA[#[vars.outboundHeaders default {}]]]></http:headers>
+            </http:response>
+            <http:error-response statusCode="#[vars.httpStatus default 500]">
+                <http:body><![CDATA[#[payload]]]></http:body>
+                <http:headers><![CDATA[#[vars.outboundHeaders default {}]]]></http:headers>
+            </http:error-response>
+        </http:listener>
+        <apikit:router config-ref="soa-lab-4-config" />
+        <error-handler>
+            <on-error-propagate type="APIKIT:BAD_REQUEST">
+                <ee:transform>
+                    <ee:message>
+                        <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{message: "Bad request"}]]></ee:set-payload>
+                    </ee:message>
+                    <ee:variables>
+                        <ee:set-variable variableName="httpStatus">400</ee:set-variable>
+                    </ee:variables>
+                </ee:transform>
+            </on-error-propagate>
+            <on-error-propagate type="APIKIT:NOT_FOUND">
+                <ee:transform>
+                    <ee:message>
+                        <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{message: "Resource not found"}]]></ee:set-payload>
+                    </ee:message>
+                    <ee:variables>
+                        <ee:set-variable variableName="httpStatus">404</ee:set-variable>
+                    </ee:variables>
+                </ee:transform>
+            </on-error-propagate>
+            <on-error-propagate type="APIKIT:METHOD_NOT_ALLOWED">
+                <ee:transform>
+                    <ee:message>
+                        <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{message: "Method not allowed"}]]></ee:set-payload>
+                    </ee:message>
+                    <ee:variables>
+                        <ee:set-variable variableName="httpStatus">405</ee:set-variable>
+                    </ee:variables>
+                </ee:transform>
+            </on-error-propagate>
+            <on-error-propagate type="APIKIT:NOT_ACCEPTABLE">
+                <ee:transform>
+                    <ee:message>
+                        <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{message: "Not acceptable"}]]></ee:set-payload>
+                    </ee:message>
+                    <ee:variables>
+                        <ee:set-variable variableName="httpStatus">406</ee:set-variable>
+                    </ee:variables>
+                </ee:transform>
+            </on-error-propagate>
+            <on-error-propagate type="APIKIT:UNSUPPORTED_MEDIA_TYPE">
+                <ee:transform>
+                    <ee:message>
+                        <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{message: "Unsupported media type"}]]></ee:set-payload>
+                    </ee:message>
+                    <ee:variables>
+                        <ee:set-variable variableName="httpStatus">415</ee:set-variable>
+                    </ee:variables>
+                </ee:transform>
+            </on-error-propagate>
+            <on-error-propagate type="APIKIT:NOT_IMPLEMENTED">
+                <ee:transform>
+                    <ee:message>
+                        <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{message: "Not Implemented"}]]></ee:set-payload>
+                    </ee:message>
+                    <ee:variables>
+                        <ee:set-variable variableName="httpStatus">501</ee:set-variable>
+                    </ee:variables>
+                </ee:transform>
+            </on-error-propagate>
+        </error-handler>
+    </flow>
+    <flow name="soa-lab-4-console">
+        <http:listener config-ref="soa-lab-4-httpListenerConfig" path="/console/*">
+            <http:response statusCode="#[vars.httpStatus default 200]">
+                <http:headers>#[vars.outboundHeaders default {}]</http:headers>
+            </http:response>
+            <http:error-response statusCode="#[vars.httpStatus default 500]">
+                <http:body>#[payload]</http:body>
+                <http:headers>#[vars.outboundHeaders default {}]</http:headers>
+            </http:error-response>
+        </http:listener>
+        <apikit:console config-ref="soa-lab-4-config" />
+        <error-handler>
+            <on-error-propagate type="APIKIT:NOT_FOUND">
+                <ee:transform>
+                    <ee:message>
+                        <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{message: "Resource not found"}]]></ee:set-payload>
+                    </ee:message>
+                    <ee:variables>
+                        <ee:set-variable variableName="httpStatus">404</ee:set-variable>
+                    </ee:variables>
+                </ee:transform>
+            </on-error-propagate>
+        </error-handler>
+    </flow>
+	<flow name="put:\disciplines\(id):application\xml:soa-lab-4-config">
+        <logger level="DEBUG" message="put:\disciplines\(id):application\xml:soa-lab-4-config" />
+		<ee:transform doc:name="Transform Message" doc:id="af87b2ad-70f3-4a64-bd93-c7e5563773e5" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/xml
+ns ns0 http://soap.soaback1.kekens.com/
+---
+{
+	ns0#updateDiscipline: payload mapObject (value, key) -> {
+		arg0: attributes.uriParams.id,
+		arg1: value
+	}
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<wsc:consume operation="updateDiscipline" doc:name="Consume" doc:id="89361e79-6259-47d0-b743-e69a7bf70f6a" config-ref="Web_Service_Consumer_Config_Disciplinee"/>
+		<ee:transform doc:name="Transform Message" doc:id="1a35f16c-b07f-43c0-a029-142833d01bce" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"Status": "Success"
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<error-handler >
+			<on-error-propagate enableNotifications="true" logException="true" doc:name="On Error Propagate" doc:id="52667e67-3fb1-4a01-9360-197e3d6b747f" >
+				<set-variable value="404" doc:name="Set Variable" doc:id="a3eeaddd-726e-4038-9ae7-8c43d6d4cccd" variableName="httpStatus"/>
+				<ee:transform doc:name="Transform Message" doc:id="022313ec-e77a-4c6b-8b3e-3e9ffa8c3704" >
+					<ee:message >
+						<ee:set-payload ><![CDATA[%dw 2.0
+output application/java
+---
+error.detailedDescription]]></ee:set-payload>
+					</ee:message>
+				</ee:transform>
+			</on-error-propagate>
+		</error-handler>
+    </flow>
+    <flow name="put:\labworks\(id):application\xml:soa-lab-4-config">
+        <logger level="DEBUG" message="put:\labworks\(id):application\xml:soa-lab-4-config" />
+		<ee:transform doc:name="Transform Message" doc:id="6b287d7c-854a-4140-815e-9b606a33c188" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/xml
+ns ns0 http://soap.soaback1.kekens.com/
+---
+{
+	ns0#updateLabWork: payload mapObject (value, key) -> {
+		arg0: attributes.uriParams.id,
+		arg1: value
+	}
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<wsc:consume operation="updateLabWork" doc:name="Consume" doc:id="04f9b817-a200-4a53-b419-30686479ff63" config-ref="Web_Service_Consumer_Config_LabWork"/>
+		<ee:transform doc:name="Transform Message" doc:id="7043153e-c126-4bbe-aa48-a84595602bb1" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"Status": "Success"
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<error-handler >
+			<on-error-propagate enableNotifications="true" logException="true" doc:name="Copy_of_On Error Propagate" doc:id="276a1168-0d37-4aa6-ac7a-fdf0c34dfaf8" >
+				<set-variable value="404" doc:name="Copy_of_Set Variable" doc:id="399f316b-dfb6-4668-b7b4-dc3b18b75aa3" variableName="httpStatus" />
+				<ee:transform doc:name="Copy_of_Transform Message" doc:id="36ddf68a-284e-47dc-84fc-f0f37aaf5457" >
+					<ee:message >
+						<ee:set-payload ><![CDATA[%dw 2.0
+output application/java
+---
+error.detailedDescription]]></ee:set-payload>
+					</ee:message>
+				</ee:transform>
+			</on-error-propagate>
+		</error-handler>
+    </flow>
+    <flow name="delete:\labworks\difficulty:soa-lab-4-config">
+        <logger level="DEBUG" message="delete:\labworks\difficulty:soa-lab-4-config" />
+		<ee:transform doc:name="Transform Message" doc:id="c43fed4f-210d-46c1-a188-3121407fbc04" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/xml
+ns ns0 http://soap.soaback1.kekens.com/
+---
+{
+	ns0#deleteByDifficulty: {
+		arg0: attributes.queryParams.difficulty
+	}
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<wsc:consume operation="deleteByDifficulty" doc:name="Consume" doc:id="81e5729f-2a97-4436-b9d6-8ef6339e11db" config-ref="Web_Service_Consumer_Config_LabWork"/>
+		<ee:transform doc:name="Transform Message" doc:id="837bac88-3cbd-4438-aa95-3127232be372" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+ns ns0 http://soap.soaback1.kekens.com/
+---
+labwork: payload.body.ns0#deleteByDifficultyResponse.return]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<error-handler >
+			<on-error-propagate enableNotifications="true" logException="true" doc:name="Copy_of_On Error Propagate" doc:id="13eb17a5-bc01-4f2c-88ef-883528e2a271" >
+				<set-variable value="400" doc:name="Copy_of_Set Variable" doc:id="a4bcdb12-6e12-4e4d-b31b-4fb9bd88a703" variableName="httpStatus" />
+				<ee:transform doc:name="Copy_of_Transform Message" doc:id="dce1d6e5-de90-4db9-907c-872a31007275" >
+					<ee:message >
+						<ee:set-payload ><![CDATA[%dw 2.0
+output application/java
+---
+error.detailedDescription]]></ee:set-payload>
+					</ee:message>
+				</ee:transform>
+			</on-error-propagate>
+		</error-handler>
+    </flow>
+    <flow name="delete:\disciplines\(id):soa-lab-4-config">
+        <logger level="DEBUG" message="delete:\disciplines\(id):soa-lab-4-config" />
+		<ee:transform doc:name="Transform Message" doc:id="186b603a-2fe0-415e-947d-03fe72d156e6" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/xml
+ns ns0 http://soap.soaback1.kekens.com/
+---
+{
+	ns0#deleteDiscipline: {
+		arg0: attributes.uriParams.id
+	}
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<wsc:consume operation="deleteDiscipline" doc:name="Consume" doc:id="80ba262f-bae0-42ce-adad-0b4106f7f93a" config-ref="Web_Service_Consumer_Config_Disciplinee"/>
+		<ee:transform doc:name="Transform Message" doc:id="15161545-fe47-47dd-8a03-ac53377f1033" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"Status": "Success"
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<error-handler >
+			<on-error-propagate enableNotifications="true" logException="true" doc:name="Copy_of_On Error Propagate" doc:id="92d60ae1-a746-43dd-b459-3ecdc4eb36d2" >
+				<set-variable value="404" doc:name="Copy_of_Set Variable" doc:id="43c5551e-3a20-4092-a67c-d2454dff8187" variableName="httpStatus" />
+				<ee:transform doc:name="Copy_of_Transform Message" doc:id="8196f23c-9c9e-49a2-ae1b-c1097491db50" >
+					<ee:message >
+						<ee:set-payload ><![CDATA[%dw 2.0
+output application/java
+---
+error.detailedDescription]]></ee:set-payload>
+					</ee:message>
+				</ee:transform>
+			</on-error-propagate>
+		</error-handler>
+    </flow>
+    <flow name="delete:\labworks\(id):soa-lab-4-config">
+        <logger level="DEBUG" message="delete:\labworks\(id):soa-lab-4-config" />
+		<ee:transform doc:name="Transform Message" doc:id="1d17c4d7-9371-48a7-a2ce-cb7e27608ff2" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/xml
+ns ns0 http://soap.soaback1.kekens.com/
+---
+{
+	ns0#deleteLabWork: {
+		arg0: attributes.uriParams.id
+	}
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<wsc:consume operation="deleteLabWork" doc:name="Consume" doc:id="c30842d2-7a2e-4aa5-92cb-89eb8ac7a107" config-ref="Web_Service_Consumer_Config_LabWork"/>
+		<ee:transform doc:name="" doc:id="7c2ab5dd-bb28-42e4-a626-844b4d1c2805" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"Status": "Success"
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<error-handler >
+			<on-error-propagate enableNotifications="true" logException="true" doc:name="Copy_of_On Error Propagate" doc:id="7272e48d-4fdf-4924-9437-194934e7777d" >
+				<set-variable value="404" doc:name="Copy_of_Set Variable" doc:id="1c908d57-efef-4517-9a4a-140935556968" variableName="httpStatus" />
+				<ee:transform doc:name="Copy_of_Transform Message" doc:id="fdb4f6f2-fbe3-4c18-be0a-42cea434ddc1" >
+					<ee:message >
+						<ee:set-payload ><![CDATA[%dw 2.0
+output application/java
+---
+error.detailedDescription]]></ee:set-payload>
+					</ee:message>
+				</ee:transform>
+			</on-error-propagate>
+		</error-handler>
+    </flow>
+    <flow name="get:\labworks\difficulty\count:soa-lab-4-config">
+        <logger level="DEBUG" message="get:\labworks\difficulty\count:soa-lab-4-config" />
+		<ee:transform doc:name="Transform Message" doc:id="d1cfaa84-d1fa-4489-97b0-f5ee1a8a6fbe" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/xml
+ns ns0 http://soap.soaback1.kekens.com/
+---
+{
+	ns0#getCountByDifficultyMore: {
+		arg0: attributes.queryParams.difficulty
+	}
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<wsc:consume doc:name="Consume" doc:id="4d83e16e-069c-48ac-ab05-24c07d462fd4" config-ref="Web_Service_Consumer_Config_LabWork" operation="getCountByDifficultyMore"/>
+		<ee:transform doc:name="Transform Message" doc:id="d268760b-fe8e-4756-a49f-ba6182a600d5" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+ns ns0 http://soap.soaback1.kekens.com/
+---
+payload.body.ns0#getCountByDifficultyMoreResponse.return]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<error-handler >
+			<on-error-propagate enableNotifications="true" logException="true" doc:name="Copy_of_On Error Propagate" doc:id="d5755d15-a4ca-41a4-9104-f93b89f18269" >
+				<set-variable value="400" doc:name="Copy_of_Set Variable" doc:id="f7aabc8f-34c5-4ef1-9134-03d6b5c650bc" variableName="httpStatus" />
+				<ee:transform doc:name="Copy_of_Transform Message" doc:id="fcda4f57-b3a6-4f43-923c-b661a397eea2" >
+					<ee:message >
+						<ee:set-payload ><![CDATA[%dw 2.0
+output application/java
+---
+error.detailedDescription]]></ee:set-payload>
+					</ee:message>
+				</ee:transform>
+			</on-error-propagate>
+		</error-handler>
+    </flow>
+    <flow name="get:\disciplines:soa-lab-4-config">
+        <logger level="DEBUG" message="get:\disciplines:soa-lab-4-config" />
+		<wsc:consume operation="getAllDisciplines" doc:name="Consume" doc:id="741adbf4-aba1-45df-bf5a-1fbd3ae178db" config-ref="Web_Service_Consumer_Config_Disciplinee"/>
+		<ee:transform doc:name="Transform Message" doc:id="cd58e2ba-d446-4f47-81b1-6d28936c9860" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+ns ns0 http://soap.soaback1.kekens.com/
+---
+disciplinesList: payload.body.ns0#getAllDisciplinesResponse.*return map (item, index) -> {
+      "id": item.id,
+      "name": item.name,
+      "lectureHours": item.lectureHours
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<error-handler >
+			<on-error-propagate enableNotifications="true" logException="true" doc:name="Copy_of_On Error Propagate" doc:id="a033de63-15e6-426f-959d-3cbe9c936317" >
+				<set-variable value="400" doc:name="Copy_of_Set Variable" doc:id="3f3c351b-37d1-40aa-9a56-74c6dea3f8da" variableName="httpStatus" />
+				<ee:transform doc:name="Copy_of_Transform Message" doc:id="74b08745-af06-4a07-931d-7cbfa40f968e" >
+					<ee:message >
+						<ee:set-payload ><![CDATA[%dw 2.0
+output application/java
+---
+error.detailedDescription]]></ee:set-payload>
+					</ee:message>
+				</ee:transform>
+			</on-error-propagate>
+		</error-handler>
+    </flow>
+    <flow name="get:\labworks:soa-lab-4-config">
+        <logger level="DEBUG" message="get:\labworks:soa-lab-4-config" />
+		<ee:transform doc:name="Transform Message" doc:id="97ac2a8a-7cfa-4b66-950d-6e0461ec08d0" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/xml skipNullOn="everywhere"
+ns ns0 http://soap.soaback1.kekens.com/
+---
+{
+	ns0#getAllLabWorks: {
+		arg0: {
+			nameStrArray: attributes.queryParams.name,
+			coordinatesXStrArray: attributes.queryParams.coordinates_x,
+			coordinatesYStrArray: attributes.queryParams.coordinates_y,
+			minimalPointStrArray: attributes.queryParams.minimalPoint,
+			difficultyStrArray: attributes.queryParams.difficulty,
+			disciplineNameStrArray: attributes.queryParams.disciplineName,
+			creationDate: attributes.queryParams.creationDate,
+			sortingParams: attributes.queryParams.sort,
+			pageSize: attributes.queryParams.page,
+			pageIndex: attributes.queryParams.count,
+		}
+	}
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<wsc:consume doc:name="Consume" doc:id="69f69901-d8ae-4785-b46e-3b15cdae2e9b" config-ref="Web_Service_Consumer_Config_LabWork" operation="getAllLabWorks"/>
+		<ee:transform doc:name="Transform Message" doc:id="598faa49-8dc3-43de-9324-49c95489242c" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+ns ns0 http://soap.soaback1.kekens.com/
+---
+labWorkList: payload.body.ns0#getAllLabWorksResponse.*return map (item, index) -> {
+      "id": item.id,
+      "name": item.name,
+      "coordinates": item.coordinates,
+      "creationDate": item.creationDate,
+      "minimalPoint": item.minimalPoint,
+      "difficulty": item.difficulty,
+      "discipline": item.discipline
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<error-handler >
+			<on-error-propagate enableNotifications="true" logException="true" doc:name="Copy_of_On Error Propagate" doc:id="84335f8e-aecc-4586-a4d4-6bb41cefd879" >
+				<set-variable value="400" doc:name="Copy_of_Set Variable" doc:id="338b9c18-cca7-4570-8210-a6577f1fdf7d" variableName="httpStatus" />
+				<ee:transform doc:name="Copy_of_Transform Message" doc:id="a33c78a2-c1ea-416b-b6fa-b4e5cf7d93fc" >
+					<ee:message >
+						<ee:set-payload ><![CDATA[%dw 2.0
+output application/java
+---
+error.detailedDescription]]></ee:set-payload>
+					</ee:message>
+				</ee:transform>
+			</on-error-propagate>
+		</error-handler>
+    </flow>
+    <flow name="get:\disciplines\(id):soa-lab-4-config">
+        <logger level="DEBUG" message="get:\disciplines\(id):soa-lab-4-config" />
+		<ee:transform doc:name="Transform Message" doc:id="7f100647-a934-4999-9ce2-c0bd1839e4a6" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/xml
+ns ns0 http://soap.soaback1.kekens.com/
+---
+{
+	ns0#getDisciplineById: {
+		arg0: attributes.uriParams.id
+	}
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<wsc:consume doc:name="Consume" doc:id="d5b0dd13-65c0-4058-af56-3dff6528d5f2" config-ref="Web_Service_Consumer_Config_Disciplinee" operation="getDisciplineById"/>
+		<ee:transform doc:name="Transform Message" doc:id="60241dc3-a746-4852-917c-d134d2492278" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+ns ns0 http://soap.soaback1.kekens.com/
+---
+discipline: payload.body.ns0#getDisciplineByIdResponse.return]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<error-handler >
+			<on-error-propagate enableNotifications="true" logException="true" doc:name="Copy_of_On Error Propagate" doc:id="aab474db-db0e-4da3-8a83-c504f63c1a0b" >
+				<set-variable value="404" doc:name="Copy_of_Set Variable" doc:id="4e6656b8-3efd-4ee9-ad74-0db09ca3b502" variableName="httpStatus" />
+				<ee:transform doc:name="Copy_of_Transform Message" doc:id="9084412c-b3f8-4470-a064-6badf9c24748" >
+					<ee:message >
+						<ee:set-payload ><![CDATA[%dw 2.0
+output application/java
+---
+error.detailedDescription]]></ee:set-payload>
+					</ee:message>
+				</ee:transform>
+			</on-error-propagate>
+		</error-handler>
+    </flow>
+    <flow name="get:\labworks\(id):soa-lab-4-config">
+        <logger level="DEBUG" message="get:\labworks\(id):soa-lab-4-config" />
+		<ee:transform doc:name="Transform Message" doc:id="fabdb32e-6830-4cf7-b08a-b041d56e1e80" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/xml
+ns ns0 http://soap.soaback1.kekens.com/
+---
+{
+	ns0#getLabWork: {
+		arg0: attributes.uriParams.id
+	}
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<wsc:consume doc:name="Consume" doc:id="8c4e561c-712b-411d-9662-e02f3c5c0175" config-ref="Web_Service_Consumer_Config_LabWork" operation="getLabWork"/>
+		<ee:transform doc:name="Transform Message" doc:id="7803f265-0046-4a68-9b85-22511ec3f841" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+ns ns0 http://soap.soaback1.kekens.com/
+---
+labwork: payload.body.ns0#getLabWorkResponse.return]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<error-handler >
+			<on-error-propagate enableNotifications="true" logException="true" doc:name="Copy_of_On Error Propagate" doc:id="33d33da5-3286-4bbc-861f-67d8f37b04e4" >
+				<set-variable value="404" doc:name="Copy_of_Set Variable" doc:id="4cfd98a4-6374-4fc0-be32-d46ec206c010" variableName="httpStatus" />
+				<ee:transform doc:name="Copy_of_Transform Message" doc:id="ff4c1196-4f98-48a8-8c80-8eb3ad4c0068" >
+					<ee:message >
+						<ee:set-payload ><![CDATA[%dw 2.0
+output application/java
+---
+error.detailedDescription]]></ee:set-payload>
+					</ee:message>
+				</ee:transform>
+			</on-error-propagate>
+		</error-handler>
+    </flow>
+    <flow name="post:\disciplines:application\xml:soa-lab-4-config">
+        <logger level="DEBUG" message="post:\disciplines:application\xml:soa-lab-4-config" />
+		<ee:transform doc:name="Transform Message" doc:id="ad15b144-311e-4f23-b140-9e82da1d3983" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/xml
+ns ns0 http://soap.soaback1.kekens.com/
+---
+{
+	ns0#createDiscipline: payload mapObject (value, key) -> {
+		arg0: value
+	}
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<wsc:consume operation="createDiscipline" doc:name="Consume" doc:id="b054c43b-2a1e-4c9f-bdf0-b1a8a133bd55" config-ref="Web_Service_Consumer_Config_Disciplinee"/>
+		<ee:transform doc:name="Transform Message" doc:id="f66e0c6d-731e-478d-878f-953dcbe3ff1b" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"Status": "Success"
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<error-handler >
+			<on-error-propagate enableNotifications="true" logException="true" doc:name="Copy_of_On Error Propagate" doc:id="0fc4d58b-0b00-4527-ab35-0f79c650f41d" >
+				<set-variable value="400" doc:name="Copy_of_Set Variable" doc:id="cc9fb3ef-44f0-439d-92e9-8659add24902" variableName="httpStatus" />
+				<ee:transform doc:name="Copy_of_Transform Message" doc:id="1722202d-1283-4b77-9497-27c40cd503f2" >
+					<ee:message >
+						<ee:set-payload ><![CDATA[%dw 2.0
+output application/java
+---
+error.detailedDescription]]></ee:set-payload>
+					</ee:message>
+				</ee:transform>
+			</on-error-propagate>
+		</error-handler>
+    </flow>
+    <flow name="post:\labworks:application\xml:soa-lab-4-config">
+        <logger level="DEBUG" message="post:\labworks:application\xml:soa-lab-4-config" />
+		<ee:transform doc:name="Transform Message" doc:id="b37a5228-74bd-4140-89dc-c8c39bf997c1" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/xml
+ns ns0 http://soap.soaback1.kekens.com/
+---
+{
+	ns0#createLabWork: payload mapObject (value, key) -> {
+		arg0: value
+	}
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<wsc:consume operation="createLabWork" doc:name="Consume" doc:id="2e88b8ac-8fb6-48b2-a4e5-c526ad32f173" config-ref="Web_Service_Consumer_Config_LabWork"/>
+		<ee:transform doc:name="Transform Message" doc:id="521f8d62-fbe5-449c-a79b-611e9ad553fc" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"Status": "Success"
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<error-handler >
+			<on-error-propagate enableNotifications="true" logException="true" doc:name="Copy_of_On Error Propagate" doc:id="a3b020b0-3927-4ce6-a881-77cdf4e2242c" >
+				<set-variable value="400" doc:name="Copy_of_Set Variable" doc:id="52fa916b-c0f3-41c0-a922-c7b0e42a4eb2" variableName="httpStatus" />
+				<ee:transform doc:name="Copy_of_Transform Message" doc:id="bfe8fbee-4785-4bb5-8b3b-2e7ce73762b3" >
+					<ee:message >
+						<ee:set-payload ><![CDATA[%dw 2.0
+output application/java
+---
+error.detailedDescription]]></ee:set-payload>
+					</ee:message>
+				</ee:transform>
+			</on-error-propagate>
+		</error-handler>
+    </flow>
+</mule>
