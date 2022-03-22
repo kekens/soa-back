@@ -81,7 +81,11 @@ public class SoapLabWorkServiceImpl implements SoapLabWorkService {
             labWork = labWorkService.findLabWorkById(Integer.parseInt(id));
             labWorkService.deleteLabWork(labWork);
         } catch (IncorrectDataException e) {
-            throw new SoapFault("Not found labwork with that id: " + id, 404);
+            if (e.getErrorList().stream().map(IntegrityError::getCode).collect(Collectors.toList()).contains(404)) {
+                throw new SoapFault(e.toString(), 404);
+            } else {
+                throw new SoapFault(e.toString(), 400);
+            }
         }
     }
 
